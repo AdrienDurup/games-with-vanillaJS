@@ -35,13 +35,12 @@ function drawBoard(){
       const myCell=new Cell(i);
       cells.push(myCell);
       console.log(myCell.value);
-      myBoard.innerHTML+=`
-      <button id='cell_${myCell.value}' class='board__cell' 
-      onclick="cells[${myCell.value}].play()">
-      ${myCell.value}
-      </button>`;
-    // myBoard.innerHTML+="<div id="+cells[cells.length-1].value+" class='board__cell'></div>";
+      let butt=document.createElement("button");
+butt.className="board__cell";
+butt.id=`cell_${myCell.value}`;
+butt.onclick=cells[myCell.value].play;
+butt.appendChild(document.createTextNode(myCell.value));
+myBoard.appendChild(butt);
 }  ;
-// alert(myBoard.innerHTML);
 }
 drawBoard();
