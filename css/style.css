@@ -17,6 +17,17 @@ body{
     padding: 1rem;
     font-weight: 400;
 }
+.player-name{
+    font-weight: bold;
+    font-size: 0.8rem;
+    text-align: center;
+}
+.player_1{
+color: rgb(255, 217, 0);
+}
+.player_2{
+    color :red;
+}
 .board__cell{
     display: flex;
     background-color: whitesmoke;
