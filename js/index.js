@@ -7,13 +7,13 @@ var players = [
         id: 1,
         class: "player_1",
         value: "O",
-        moves: "---------",
+        moves: "000000000",
     },
     {
         id: 2,
         class: "player_2",
         value: "X",
-        moves: "---------",
+        moves: "000000000",
     }
 ]
 
@@ -92,7 +92,7 @@ class Cell {
             /* modifier la valeur de myPH.active.moves 
             pour suivre les coups joués pour chaque joueur */
             var writeMoveRX = new RegExp(`(?<=.{${this.id - 1}}).`);
-            myPH.active.moves = myPH.active.moves.replace(writeMoveRX, myPH.active.value);
+            myPH.active.moves = myPH.active.moves.replace(writeMoveRX, "1");
             //   console.log(`moves result : ${myPH.active.moves}`);
             /* fin */
             this.playerId = myPH.active.id;
@@ -117,8 +117,8 @@ class Cell {
 
 /* TRANSFORMER EN METHODE DE OBJET JOUEUR ? */
 function victoryControl(player, board) {
-    // console.log('victoryControl running');
-    let victoryCasesRX = new RegExp(`((.{3})*${player.value}{3})|(player.value}(.{2}${player.value}){2})|(${player.value}((.{3})${player.value}){2})|(.{2}${player.value}.${player.value}.${player.value})`);
+    /* regex pour verifier les conditions de victoire sur player.moves */
+    let victoryCasesRX = new RegExp(`((.{3})*1{3})|(1(.{2}1){2})|(1((.{3})1){2})|(.{2}1.1.1)`);
     let res = victoryCasesRX.test(player.moves);
     console.log(` regex : ${victoryCasesRX}`);
     console.log(`test de victoire via regex : ${res}`);
