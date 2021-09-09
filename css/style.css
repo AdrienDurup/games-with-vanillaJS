@@ -2,7 +2,11 @@
 :root{
     --cell-size:3rem;
     --board-size:calc(var(--cell-size)*3 + 3rem);
+    --j1:rgb(255, 217, 0);
+    --j2:red;
+    --activePlayer:var(--j1);
     font-family: "Raleway",sans-serif;
+
 }
 body{
     margin:0;
@@ -21,13 +25,9 @@ body{
     font-weight: bold;
     font-size: 0.8rem;
     text-align: center;
+    color: var(--activePlayer);
 }
-.player_1{
-color: rgb(255, 217, 0);
-}
-.player_2{
-    color :red;
-}
+
 .board__cell{
     display: flex;
     background-color: whitesmoke;
@@ -41,6 +41,14 @@ color: rgb(255, 217, 0);
     width: 25%;
     box-shadow: 10px 10px 10px #00000033;
     border: none;
+    }
+    .board__cell:hover{
+        background-color:var(--activePlayer);
+    
+    }
+    .board__cell:active{
+        background-color:black;
+        /* border-radius: 100%; */
     }
 .board{
     display: flex;

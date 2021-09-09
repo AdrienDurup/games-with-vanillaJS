@@ -6,12 +6,14 @@ var players = [
     {
         id: 1,
         class: "player_1",
-        value: "O"
+        value: "O",
+        moves: "---------",
     },
     {
         id: 2,
         class: "player_2",
-        value: "X"
+        value: "X",
+        moves: "---------",
     }
 ]
 
@@ -28,40 +30,41 @@ myPH = new PlayerHandler();
 
 const turnEvent = new Event("switchTurn");
 
-var DOMGame = document.getElementById("game");
+/* Fonction pour afficher un message au dessus du board */
+function drawComment(str){
+    let DOMplayer = doc.getElementById("player");
+    DOMplayer.childNodes[0].nodeValue =str;
+}
+
+var DOMGame = doc.getElementById("game");
 DOMGame.addEventListener("switchTurn", () => {
+    /* on change de joueur actif */
     myPH.switch();
-    let DOMplayer = document.getElementById("player");
-    DOMplayer.childNodes[0].nodeValue = `Joueur ${myPH.active.id}`;
+    /* on ajoute les styles relatifs au nouveau joueur actif */
+    var root=doc.documentElement;
+    root.style.setProperty("--activePlayer",`var(--j${myPH.active.id})`);
+    drawComment(`Joueur ${myPH.active.id}`);
 });
 
+/* PLATEAU DE JEU */
 class Board {
     cells = [];
     width;
     id;
-    victoryCases() {//Ajouter un contrôle
-        return [
-            this.cells[0].playerId === this.cells[1].playerId && this.cells[0].playerId === this.cells[2].playerId && this.cells[2].playerId !== undefined,
-            this.cells[3].playerId === this.cells[4].playerId && this.cells[3].playerId === this.cells[5].playerId && this.cells[5].playerId !== undefined,
-            this.cells[6].playerId === this.cells[7].playerId && this.cells[6].playerId === this.cells[8].playerId && this.cells[8].playerId !== undefined,
-            this.cells[0].playerId === this.cells[3].playerId && this.cells[0].playerId === this.cells[6].playerId && this.cells[6].playerId !== undefined,
-            this.cells[1].playerId === this.cells[4].playerId && this.cells[1].playerId === this.cells[7].playerId && this.cells[7].playerId !== undefined,
-            this.cells[2].playerId === this.cells[5].playerId && this.cells[2].playerId === this.cells[8].playerId && this.cells[8].playerId !== undefined,
-            this.cells[0].playerId === this.cells[4].playerId && this.cells[0].playerId === this.cells[8].playerId && this.cells[8].playerId !== undefined,
-            this.cells[6].playerId === this.cells[4].playerId && this.cells[6].playerId === this.cells[2].playerId && this.cells[2].playerId !== undefined
-        ];
-    }
-    constructor(num, idStr) {
+    ph;
+
+    constructor(num, idStr, playerhandler) {
         this.width = num;
         this.id = idStr;
+        this.ph = playerhandler;
     }
     draw() {
-        var DOMBoard = document.getElementById(this.id);
+        var DOMBoard = doc.getElementById(this.id);
         // DOMBoard.addEventListener("switchTurn", () => {
         //     console.log("ok event");
         // });
         for (var i = 0; i < this.width ** 2; i++) {
-            const myCell = new Cell(i, "game");
+            const myCell = new Cell(i + 1, "game");//index de 1 à n pour faciliter les substrings dans la methode play()
             this.cells.push(myCell);
             console.log(myCell.value);
             let butt = myCell.draw();
@@ -69,10 +72,11 @@ class Board {
         };
     }
     setVictory() {
-        document.getElementById("player")
-            .childNodes[0].nodeValue = `Le joueur ${myPH.active.id} a gagné.`
+        drawComment(`Le joueur ${myPH.active.id} a gagné.`);
     }
 }
+
+/* CELLULE DE PLATEAU. CREER UN LIEN À PlayerHandler DANS le CONSTRUCEUR */
 class Cell {
     id;
     value;
@@ -81,51 +85,50 @@ class Cell {
     DOMCell;
     play = () => {
         console.log(this.target.events);
+        /* modifier la valeur de myPH.active.moves 
+        pour suivre les coups joués pour chaque joueur */
+        var writeMoveRX = new RegExp(`(?<=.{${this.id - 1}}).`);
+        myPH.active.moves = myPH.active.moves.replace(writeMoveRX, myPH.active.value);
+        //   console.log(`moves result : ${myPH.active.moves}`);
+        /* fin */
         this.playerId = myPH.active.id;
         this.DOMCell.childNodes[0].nodeValue = myPH.active.value;
-        victoryControl(this.playerId, myBoard);
-        this.target.dispatchEvent(turnEvent);
-
-
+        victoryControl(myPH.active, myBoard);
     }
     constructor(val, str) {
         this.id = val;
         this.target = document.getElementById(str);
     }
     draw() {
-        let butt = document.createElement("button");
+        let butt = doc.createElement("button");
         butt.className = "board__cell";
         butt.id = `cell_${this.id}`;
         butt.onclick = this.play;
-        butt.appendChild(document.createTextNode(""));
-        // butt.appendChild(document.createTextNode(this.id));
+        butt.appendChild(doc.createTextNode(""));
         this.DOMCell = butt;
         return butt;
     }
 }
 
-var myBoard = new Board(3, "board");
-// alert(myBoard.id);
-myBoard.draw();
-
-function test() {
-    alert("OK");
-};
-console.log();
-
-function victoryControl(id, board) {
-    console.log('victoryControl running');
-    let cells = board.cells;
-    let cases = board.victoryCases();
-    // console.log(`Joueur ${id} vient de jouer. Joueur ${myPH.active.id} est actif.`);
-    cases.forEach(el => {
-        try {
-            if (el) {
-                board.setVictory();
-                throw id;
-            };
-        } catch (e) { console.log(`Victoire pour Joueur ${e}`) };
-    }
-
-    );
+/* TRANSFORMER EN METHODE DE OBJET JOUEUR ? */
+function victoryControl(player, board) {
+    // console.log('victoryControl running');
+    let victoryCasesRX = new RegExp(`((.{3})*${player.value}{3})|(player.value}(.{2}${player.value}){2})|(${player.value}((.{3})${player.value}){2})|(.{2}${player.value}.${player.value}.${player.value})`);
+    let res = victoryCasesRX.test(player.moves);
+    console.log(` regex : ${victoryCasesRX}`);
+    console.log(`test de victoire via regex : ${res}`);
+    if (res) {
+        board.setVictory();
+        console.log("victory");
+        return;
+    }else{
+        // this.target.dispatchEvent(turnEvent);
+        doc.getElementById("game").dispatchEvent(turnEvent);
+    };
+    console.log("no victory");
 }
+
+/* Je génère mon board */
+var myBoard = new Board(3, "board", myPH);
+/* je l’affiche */
+myBoard.draw();
