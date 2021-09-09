@@ -31,9 +31,9 @@ myPH = new PlayerHandler();
 const turnEvent = new Event("switchTurn");
 
 /* Fonction pour afficher un message au dessus du board */
-function drawComment(str){
+function drawComment(str) {
     let DOMplayer = doc.getElementById("player");
-    DOMplayer.childNodes[0].nodeValue =str;
+    DOMplayer.childNodes[0].nodeValue = str;
 }
 
 var DOMGame = doc.getElementById("game");
@@ -41,8 +41,8 @@ DOMGame.addEventListener("switchTurn", () => {
     /* on change de joueur actif */
     myPH.switch();
     /* on ajoute les styles relatifs au nouveau joueur actif */
-    var root=doc.documentElement;
-    root.style.setProperty("--activePlayer",`var(--j${myPH.active.id})`);
+    var root = doc.documentElement;
+    root.style.setProperty("--activePlayer", `var(--j${myPH.active.id})`);
     drawComment(`Joueur ${myPH.active.id}`);
 });
 
@@ -83,17 +83,22 @@ class Cell {
     target;
     playerId;
     DOMCell;
+    isPlayed = false;
     play = () => {
-        console.log(this.target.events);
-        /* modifier la valeur de myPH.active.moves 
-        pour suivre les coups joués pour chaque joueur */
-        var writeMoveRX = new RegExp(`(?<=.{${this.id - 1}}).`);
-        myPH.active.moves = myPH.active.moves.replace(writeMoveRX, myPH.active.value);
-        //   console.log(`moves result : ${myPH.active.moves}`);
-        /* fin */
-        this.playerId = myPH.active.id;
-        this.DOMCell.childNodes[0].nodeValue = myPH.active.value;
-        victoryControl(myPH.active, myBoard);
+        if (!this.isPlayed) {
+            
+            this.isPlayed = true;
+            console.log(this.target.events);
+            /* modifier la valeur de myPH.active.moves 
+            pour suivre les coups joués pour chaque joueur */
+            var writeMoveRX = new RegExp(`(?<=.{${this.id - 1}}).`);
+            myPH.active.moves = myPH.active.moves.replace(writeMoveRX, myPH.active.value);
+            //   console.log(`moves result : ${myPH.active.moves}`);
+            /* fin */
+            this.playerId = myPH.active.id;
+            this.DOMCell.childNodes[0].nodeValue = myPH.active.value;
+            victoryControl(myPH.active, myBoard);
+        };
     }
     constructor(val, str) {
         this.id = val;
@@ -121,7 +126,7 @@ function victoryControl(player, board) {
         board.setVictory();
         console.log("victory");
         return;
-    }else{
+    } else {
         // this.target.dispatchEvent(turnEvent);
         doc.getElementById("game").dispatchEvent(turnEvent);
     };
