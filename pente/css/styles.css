@@ -1,6 +1,18 @@
-.game-container {}
+:root{
+    --cellSize:2.5rem;
+    --board-size:19;
+    --colorPlayer1:rgb(255, 2, 2);
+    --colorPlayer2:rgb(255, 217, 2);
+}
+.game-container {
 
-.board {}
+}
+
+.board {
+margin: auto;
+    width: calc(var(--cellSize)*var(--board-size));
+    border: solid 3rem black;
+}
 
 .board__row {
     display: flex;
@@ -9,7 +21,63 @@
 }
 
 .board__cell {
-    width: 3rem;
-    height:3rem;
-    background-color: rgb(255, 230, 147);
+    position: relative;
+    display:flex ;
+    align-items: center;
+    justify-content: center;
+    width: var(--cellSize);
+    height:var(--cellSize);
+    background-color:rgb(255, 230, 147);
+    /* background-position: center,center;
+    background-size:3px,100%  ;
+    background-repeat:repeat-x,repeat ; */
+    
+    /* background-color: gray,rgb(255, 230, 147);
+    background-position: center,center;
+    background-size:3px,100%  ;
+    background-repeat:repeat-x,repeat ; */
+
+}
+.board__cell:hover{
+    background-image:url("../assets/stone.svg");
+    background-size: 90%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-sizing: border-box;
+    outline: 5px 5px rgba(0, 0, 0, 0.4);
+}
+.cell__line{
+background-color: gray;
+position: absolute;
+height: 100%;
+width: 100%;
+--line:calc(50% - .1rem/2);
+}
+
+.cell__line--v{
+    width:.1rem;
+    left:var(--line);
+}
+.cell__line--h{
+    height:.1rem;
+    top:var(--line);
+}
+.stone{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-image:url("../assets/stone.svg");
+    background-size: 90%;
+    background-repeat: no-repeat;
+    background-position: center;
+
+}
+.stone--j0{
+    background-image:url("../assets/stone.svg");
+}
+.stone--j1{
+    background-image:url("../assets/stone2.svg");
+}
+.hidden{
+    display:none;
 }
