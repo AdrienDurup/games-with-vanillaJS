@@ -1,0 +1,15 @@
+.game-container {}
+
+.board {}
+
+.board__row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.board__cell {
+    width: 3rem;
+    height:3rem;
+    background-color: rgb(255, 230, 147);
+}
