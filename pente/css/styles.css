@@ -1,17 +1,21 @@
 :root{
     --cellSize:2.5rem;
     --board-size:19;
-    --colorPlayer1:rgb(255, 2, 2);
-    --colorPlayer2:rgb(255, 217, 2);
+    /*TODO rendre plus tard lus couleurs gérables par les joueurs */
+    --colorPlayer0:rgb(255, 2, 2);
+    --colorPlayer1:rgb(255, 217, 2);
+    --stonePlayer0:url("../assets/stone.svg");
+    --stonePlayer1:url("../assets/stone2.svg");
 }
-.game-container {
+/* .game-container {
 
-}
+} */
 
 .board {
 margin: auto;
     width: calc(var(--cellSize)*var(--board-size));
     border: solid 3rem black;
+    background-color:rgb(255, 230, 147);
 }
 
 .board__row {
@@ -27,7 +31,6 @@ margin: auto;
     justify-content: center;
     width: var(--cellSize);
     height:var(--cellSize);
-    background-color:rgb(255, 230, 147);
     /* background-position: center,center;
     background-size:3px,100%  ;
     background-repeat:repeat-x,repeat ; */
@@ -39,7 +42,8 @@ margin: auto;
 
 }
 .board__cell:hover{
-    background-image:url("../assets/stone.svg");
+    opacity: 50%;
+    background-image:var(--stonePlayer1);
     background-size: 90%;
     background-position: center;
     background-repeat: no-repeat;

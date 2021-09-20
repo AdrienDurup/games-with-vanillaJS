@@ -54,9 +54,9 @@ const app = {
         checkOneDirection(axis) {
             let score = 0;
             for (let i = 1; i < 5; i++) {
-                const id=`cell_${this.move[0] + axis[0] * i}_${this.move[1] + axis[1] * i}`;
-                if (app.Cell.dictionary[id]!==undefined//Si on est hors champ on doit breaker
-                    &&app.Cell.dictionary[id].value === this.id) {
+                const id = `cell_${this.move[0] + axis[0] * i}_${this.move[1] + axis[1] * i}`;
+                if (app.Cell.dictionary[id] !== undefined//Si on est hors champ on doit breaker
+                    && app.Cell.dictionary[id].value === this.id) {
                     score++;
                 } else {
                     break;
@@ -66,23 +66,23 @@ const app = {
         }
         checkPair(axis) {
             let pairCheck = [];
-            let isPairCheckValid=true;
+            let isPairCheckValid = true;
             for (let i = 1; i < 4; i++) {
-                const id=`cell_${this.move[0] + axis[0] * i}_${this.move[1] + axis[1] * i}`;
+                const id = `cell_${this.move[0] + axis[0] * i}_${this.move[1] + axis[1] * i}`;
                 let aheadCell = app.Cell.dictionary[id];
-                if(aheadCell!==undefined){
-                    pairCheck.push({id:id,value:aheadCell.value});
-                }else{
-                    isPairCheckValid=false;
+                if (aheadCell !== undefined) {
+                    pairCheck.push({ id: id, value: aheadCell.value });
+                } else {
+                    isPairCheckValid = false;
                 };
 
             }
-            if (isPairCheckValid===true
-                &&pairCheck[0].value!==this.id
-                &&pairCheck[0].value === pairCheck[1].value 
-                && pairCheck[0].value !== "" 
+            if (isPairCheckValid === true
+                && pairCheck[0].value !== this.id
+                && pairCheck[0].value === pairCheck[1].value
+                && pairCheck[0].value !== ""
                 && pairCheck[2].value === this.id
-                ) {
+            ) {
                 this.pairs++;
                 console.log(this.pairs);
                 app.deleteStone(pairCheck[0].id);
@@ -123,6 +123,11 @@ const app = {
             this.stoneContainer = document.createElement("div");
             this.stoneContainer.className = "stone hidden";
             this.DOM.appendChild(this.stoneContainer);
+            this.DOM.addEventListener("mouseenter", (e) => {
+                // console.log("ok : "+`var(--stonePlayer${app.gameState.activePlayer.index})`);
+                e.target.style
+                .setProperty("background-image",`var(--stonePlayer${app.gameState.activePlayer.index})`);
+            });
             this.DOM.addEventListener("click", (e) => {
                 console.log(`Cell id is ${this.DOM.id}`);
 
@@ -148,6 +153,7 @@ const app = {
         } else {
             app.gameState.activePlayer = app.Player.list[app.gameState.activePlayer.index + 1];
         };
+
         console.log(`${app.gameState.activePlayer.id}’s turn`);
     },
     drawRow: (container, className) => {
