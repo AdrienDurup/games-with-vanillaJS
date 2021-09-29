@@ -1,19 +1,55 @@
-const { application } = require("express");
 const xpr = require("express");
 // const url=require("url");
 const viewr = require("./my_modules/viewr");
-const port = "3000";
+// const viewr = require("./my_modules/viewrXpr");//template module shaped for express
+const port = "3002";
 const host = `http://localhost`;
 
 const srv = xpr();
 
 /* double sessions */
- let sessions = {};
+let sessions = {};
 // srv.locals.sessions = sessions;
 
+class Player {
+    static list = [];
+    constructor(name, id) {
+        this.name = name;
+        this.id = id;
+        this.index = Player.list.length;
+        Player.list.push(this);
+    }
+}
+
+class GameData {
+    constructor(player) {
+        this.activePlayer = player;
+        this.list = Player.list;
+    }
+    changePlayer = () => {
+        if (Player.list[this.activePlayer.index + 1] !== undefined) {
+            this.activePlayer = Player.list[this.activePlayer.index + 1];
+        } else {
+            this.activePlayer = Player.list[0];
+        };
+    }
+};
+
+// srv.use(xpr.json());
+// srv.use(xpr.urlencoded({extended:true}));
+
+/* on définit les routes statiques */
 srv.use(xpr.static("assets"));
-// srv.set("view engine",viewr);
-// srv.set("views","/views");
+srv.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()} ${req.ip}] ${req.originalUrl}`);
+    next();
+});
+/*
+//template module shaped for express
+
+srv.engine("viewr",viewr);//viewr = conso.viewr
+srv.set("view engine","viewr");
+srv.set("views","views"); */
 
 srv.get("/", (req, res) => {
     /* on demande à l’utilisateur de créer une session ou de rejoindre une partie */
@@ -23,9 +59,13 @@ srv.get("/", (req, res) => {
     } else {
         /* on crée la session */
         const sessionName = req.query.session;
-        const owner = { name: req.query.owner, id: req.ip };
-        const gameData = { activePlayer: owner.id };
-        sessions[sessionName] = { owner: owner, guest: "", gameData: gameData };
+        const owner = new Player(req.query.owner, req.ip);
+        sessions[sessionName] = {
+            sessionName: sessionName,
+            owner: owner,
+            guest: "",
+            gameData: new GameData(owner)
+        };
         console.log(sessions[sessionName]);
         res.redirect(`/penteonline/${sessionName}`);
         // res.status(200).json(sessions[sessionName]);
@@ -33,16 +73,28 @@ srv.get("/", (req, res) => {
 });
 
 srv.get("/penteonline/:session", (req, res) => {
+    console.log(`Route 1`); console.log(`MOVE ? ${req.query.move}`);
     const sessionName = req.params.session;
     if (typeof sessions[sessionName] === "undefined" ||
         typeof sessions[sessionName].owner === "undefined") {
         res.status(403).send("Erreur 403");
-    } else {if(req.ip===sessions[sessionName].gameData.activePlayer){//si le joueur appelant est le joueur actif
-        console.log(`${req.ip}===${sessions[sessionName].gameData.activePlayer}`)
-    };
+    } else {
+        console.log(req.ip, sessions[sessionName].gameData.activePlayer);
+
+        /* si le joueur appelant est le joueur actif et qu’il a joué un coup */
+        if (req.ip === sessions[sessionName].gameData.activePlayer.id
+            && typeof req.query.json !== "undefined") {
+            /* On récupère les coordonnées du coup */
+            const reqObj = JSON.parse(req.query.json);
+            console.log(reqObj);
+
+            /* on change de joueur actif */
+            console.log(sessions[sessionName].gameData.list);
+            sessions[sessionName].gameData.changePlayer();
+        };
         /* dessiner le board */
         res.append("Content-Type", "text/html;charset=utf-8");
-        res.status(200).send(viewr.render("views/game.vrmu", { session: sessions[sessionName] }));
+        res.status(200).send(viewr.render("views/game.viewr", { test: 'Pente en dév', session: sessions[sessionName] }));
         // res.status(200).render("game.viewr", { session: sessions[sessionName] });
     };
 });
@@ -51,7 +103,7 @@ srv.use((req, res, next) => {
     /* check identité du joueur appelant
     si c’est le joueur actif : gestion du coup.
     Sinon : rejet avec notification*/
-
+    next();
 });
 
 srv.listen(port, () => {

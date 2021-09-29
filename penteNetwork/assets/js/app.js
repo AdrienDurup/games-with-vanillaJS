@@ -4,6 +4,7 @@ const app = {
         size: 19,
     },
     gameState: {
+        session:"",//récuperer la valeur via l’ID de Body ?
         playerList: [],
         activePlayer: {},
     },
@@ -133,8 +134,24 @@ const app = {
 
                 if (this.value === "") {
                     console.log(`clic by ${app.gameState.activePlayer.id}`);
-                    this.value = app.gameState.activePlayer.id;
-                    app.gameState.activePlayer.move = this.coordinate;
+
+                    /* Créer ici nue requête html */
+                    const req=new XMLHttpRequest();
+
+                    /* On lui passe des données */
+                    // req.submittedData=JSON.stringify({move:this.coordinate});
+
+                    /* on récupère le nom de session stocké dans l’id de body  */
+                    const session=document.querySelector("body").id;
+                    /* on poste la requête */
+                    const reqJSON=encodeURI(JSON.stringify({move:this.coordinate}));
+                        console.log(`reqJSON : ${reqJSON}`);
+                    req.open("GET",`/penteonline/${session}/?json=${reqJSON}`,false);
+                    req.send();
+/*                     this.value = app.gameState.activePlayer.id;
+                    app.gameState.activePlayer.move = this.coordinate; */
+                    
+                                        /* à passer coté server */
                     this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
                     console.log(this.stoneContainer.classList);
                     app.gameState.activePlayer.checkVictory();
