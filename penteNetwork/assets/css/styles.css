@@ -10,7 +10,11 @@
 /* .game-container {
 
 } */
-
+.header{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
 .board {
 margin: auto;
     width: calc(var(--cellSize)*var(--board-size));

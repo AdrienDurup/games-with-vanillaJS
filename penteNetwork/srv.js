@@ -63,7 +63,7 @@ srv.get("/", (req, res) => {
         sessions[sessionName] = {
             sessionName: sessionName,
             owner: owner,
-            guest: "",
+            guest: new Player("alterego",req.ip),
             gameData: new GameData(owner)
         };
         console.log(sessions[sessionName]);
@@ -75,6 +75,7 @@ srv.get("/", (req, res) => {
 srv.get("/penteonline/:session", (req, res) => {
     console.log(`Route 1`); console.log(`MOVE ? ${req.query.move}`);
     const sessionName = req.params.session;
+    const session=sessions[req.params.session];
     if (typeof sessions[sessionName] === "undefined" ||
         typeof sessions[sessionName].owner === "undefined") {
         res.status(403).send("Erreur 403");
@@ -82,15 +83,16 @@ srv.get("/penteonline/:session", (req, res) => {
         console.log(req.ip, sessions[sessionName].gameData.activePlayer);
 
         /* si le joueur appelant est le joueur actif et qu’il a joué un coup */
-        if (req.ip === sessions[sessionName].gameData.activePlayer.id
+        if (req.ip === session.gameData.activePlayer.id
             && typeof req.query.json !== "undefined") {
             /* On récupère les coordonnées du coup */
             const reqObj = JSON.parse(req.query.json);
             console.log(reqObj);
 
             /* on change de joueur actif */
-            console.log(sessions[sessionName].gameData.list);
-            sessions[sessionName].gameData.changePlayer();
+            console.log(session.gameData.list);
+            session.gameData.changePlayer();
+            console.log(session.gameData.activePlayer.name);
         };
         /* dessiner le board */
         res.append("Content-Type", "text/html;charset=utf-8");

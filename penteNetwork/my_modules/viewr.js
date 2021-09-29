@@ -10,7 +10,6 @@ module.exports = {
       const regex = /(?<=\$\{).*?(?=\})/g;
       const regexVar = /^[a-zA-Z_][a-zA-Z_0-9^-]*$/;
       const regexProp = /^[a-zA-Z_][a-zA-Z_0-9^-]*(\.[a-zA-Z_0-9^-]*)+$/;
-
       const regexArray = /^[a-zA-Z_][a-zA-Z_0-9^-]*(\.[a-zA-Z_0-9^-]*)*\[.*\]$/;//non utilisé encore
       const varArray = htmlStr.match(regex);
       // console.log("VIEWR varArray : "+varArray,regexVar.test(varArray[0]),regexProp.test(varArray[1]));
