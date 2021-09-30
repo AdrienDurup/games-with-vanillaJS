@@ -1,3 +1,5 @@
+const socket=io();
+
 const app = {
     def: {
         author: "Gary Gabrel",

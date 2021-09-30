@@ -1,11 +1,22 @@
 const xpr = require("express");
-// const url=require("url");
+
+/* view engine */
 const viewr = require("./my_modules/viewr");
 // const viewr = require("./my_modules/viewrXpr");//template module shaped for express
 const port = "3002";
+const wbs_port = "4000";
 const host = `http://localhost`;
 
 const srv = xpr();
+
+/* websocket protocol handling server
+see https://socket.io/get-started/chat
+*/
+const http=require("http");
+const ioserver=http.createServer(srv);
+const {Server}=require("socket.io");
+const io=new Server(ioserver);
+
 
 /* double sessions */
 let sessions = {};
@@ -37,6 +48,7 @@ class GameData {
 
 // srv.use(xpr.json());
 // srv.use(xpr.urlencoded({extended:true}));
+
 
 /* on définit les routes statiques */
 srv.use(xpr.static("assets"));
@@ -71,6 +83,7 @@ srv.get("/", (req, res) => {
         // res.status(200).json(sessions[sessionName]);
     };
 });
+
 
 srv.get("/penteonline/:session", (req, res) => {
     console.log(`Route 1`); console.log(`MOVE ? ${req.query.move}`);
@@ -108,6 +121,14 @@ srv.use((req, res, next) => {
     next();
 });
 
-srv.listen(port, () => {
+/* dans express, app.listen() crée le server under the hood
+ce qui n’est pas toujours souhaitable, auquel cas il faut utiliser le module HTTP.
+app=express() n’est pas un server mais son …"framework"?
+*/
+/* on écoute les sockets */
+io.on("connection",(socket)=>{
+    console.log("A user is connected.");
+});
+ioserver.listen(wbs_port, () => {
     console.log("Pente server running");
 });
