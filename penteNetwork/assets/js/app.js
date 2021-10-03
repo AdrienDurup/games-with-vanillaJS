@@ -1,4 +1,4 @@
-const socket=io();
+const socket = io();
 
 const app = {
     def: {
@@ -6,9 +6,10 @@ const app = {
         size: 19,
     },
     gameState: {
-        session:"",//récuperer la valeur via l’ID de Body ?
+        session: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
         activePlayer: {},
+        lastMove: [],
     },
     Player: class {
         static list = [];
@@ -129,58 +130,49 @@ const app = {
             this.DOM.addEventListener("mouseenter", (e) => {
                 // console.log("ok : "+`var(--stonePlayer${app.gameState.activePlayer.index})`);
                 e.target.style
-                .setProperty("background-image",`var(--stonePlayer${app.gameState.activePlayer.index})`);
+                    .setProperty("background-image", `var(--stonePlayer${app.gameState.activePlayer.index})`);
             });
-            this.DOM.addEventListener("click", (e) => {
-                console.log(`Cell id is ${this.DOM.id}`);
+            this.DOM.addEventListener("click", (this.handleCellPlay));
+        }
+        handleCellPlay = (e) => {
+            console.log(`Cell id is ${e.target.id}`);
 
-                if (this.value === "") {
-                    console.log(`clic by ${app.gameState.activePlayer.id}`);
+            if (this.value === "") {
+                console.log(`clic by ${app.gameState.activePlayer.id}`);
 
-                    /* Créer ici nue requête html */
-                    const req=new XMLHttpRequest();
+                app.gameState.lastMove = this.coordinate;
 
-                    /* On lui passe des données */
-                    // req.submittedData=JSON.stringify({move:this.coordinate});
 
-                    /* on récupère le nom de session stocké dans l’id de body  */
-                    const session=document.querySelector("body").id;
-                    /* on poste la requête */
-                    const reqJSON=encodeURI(JSON.stringify({move:this.coordinate}));
-                        console.log(`reqJSON : ${reqJSON}`);
-                    req.open("GET",`/penteonline/${session}/?json=${reqJSON}`,false);
-                    req.send();
-/*                     this.value = app.gameState.activePlayer.id;
-                    app.gameState.activePlayer.move = this.coordinate; */
-                    
-                                        /* à passer coté server */
-                    this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
-                    console.log(this.stoneContainer.classList);
-                    app.gameState.activePlayer.checkVictory();
-                    app.nextPlayer();
-                };
 
-            });
+                /* On déclenche un évènement en lui passant l’état du jeu en donnée embarquée */
+                const gameDataPackage = { gameState: app.gameState };
+                socket.emit("moverequest", JSON.stringify(gameDataPackage));
+                /*                     this.value = app.gameState.activePlayer.id;
+                            app.gameState.activePlayer.move = this.coordinate; */
 
+                /*======================== à passer coté server==================================== */
+                // this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
+                console.log(this.stoneContainer.classList);
+                app.gameState.activePlayer.checkVictory();
+                // app.nextPlayer();
+            };
         }
 
+        /* Permet d’update la vue de la cellule */
+        update = () => {
+
+            console.log("IMPLEMENTER");
+        }
 
     },
-    nextPlayer: () => {
-        if (app.gameState.activePlayer.index === app.Player.list.length - 1) {
-            app.gameState.activePlayer = app.Player.list[0];
-        } else {
-            app.gameState.activePlayer = app.Player.list[app.gameState.activePlayer.index + 1];
-        };
 
-        console.log(`${app.gameState.activePlayer.id}’s turn`);
-    },
-    drawRow: (container, className) => {
-        const row = document.createElement("div");
-        row.className = className;
-        container.appendChild(row);
-        return row;
-    },
+
+drawRow: (container, className) => {
+    const row = document.createElement("div");
+    row.className = className;
+    container.appendChild(row);
+    return row;
+},
     drawBoard: (container) => {
         const board = document.createElement("div");
         board.className = "board";
@@ -193,11 +185,31 @@ const app = {
         };
         container.appendChild(board);
     },
-    init: () => {
-        app.drawBoard(document.getElementById("gameContainer"));
-        let p1 = new app.Player("Adrien", "red");
-        let p2 = new app.Player("Numéro2", "yellow");
-        app.gameState.activePlayer = p1;
-    }
+        init: () => {
+            app.drawBoard(document.getElementById("gameContainer"));
+            let p1 = new app.Player("Adrien", "red");
+            let p2 = new app.Player("Numéro2", "yellow");
+            app.gameState.activePlayer = p1;
+            app.gameState.playerList=app.Player.list;
+            socket.on("moveresponse", (e) => {
+                app.gameState = JSON.parse(e);
+                console.log(app.gameState);
+            });
+        }
 }
 document.addEventListener("DOMContentLoaded", app.init);
+
+
+                /* Créer ici nue requête html */
+                // const req = new XMLHttpRequest();
+
+                /* On lui passe des données */
+                // req.submittedData=JSON.stringify({move:this.coordinate});
+
+                /* on récupère le nom de session stocké dans l’id de body  */
+                // const session = document.querySelector("body").id;
+                /* on poste la requête */
+                // const reqJSON = encodeURI(JSON.stringify({ move: this.coordinate }));
+                // console.log(`reqJSON : ${reqJSON}`);
+                // req.open("GET", `/penteonline/${session}/?json=${reqJSON}`, false);
+                // req.send();

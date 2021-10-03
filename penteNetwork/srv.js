@@ -5,17 +5,17 @@ const viewr = require("./my_modules/viewr");
 // const viewr = require("./my_modules/viewrXpr");//template module shaped for express
 const port = "3002";
 const wbs_port = "4000";
-const host = `http://localhost`;
+const host = `http://localhost:${wbs_port}`;
 
 const srv = xpr();
 
 /* websocket protocol handling server
 see https://socket.io/get-started/chat
 */
-const http=require("http");
-const ioserver=http.createServer(srv);
-const {Server}=require("socket.io");
-const io=new Server(ioserver);
+const http = require("http");
+const ioserver = http.createServer(srv);
+const { Server } = require("socket.io");
+const io = new Server(ioserver);
 
 
 /* double sessions */
@@ -32,6 +32,7 @@ class Player {
     }
 }
 
+/* A Revoir !!!! */
 class GameData {
     constructor(player) {
         this.activePlayer = player;
@@ -72,28 +73,47 @@ srv.get("/", (req, res) => {
         /* on crée la session */
         const sessionName = req.query.session;
         const owner = new Player(req.query.owner, req.ip);
-        sessions[sessionName] = {
+        sessions[sessionName] = {//A REVOIR
             sessionName: sessionName,
+            playerList:[owner],
             owner: owner,
-            guest: new Player("alterego",req.ip),
+            guest: new Player("alterego", req.ip),
             gameData: new GameData(owner)
         };
+        sessions[sessionName].playerList=[owner,this.guest];
         console.log(sessions[sessionName]);
         res.redirect(`/penteonline/${sessionName}`);
         // res.status(200).json(sessions[sessionName]);
     };
 });
 
+/* filtre d’accès à la session
+TODO doit gérer les spectateurs */
+srv.use((req,res,next)=>{
+    const sessionName = req.params.session;
+    const session = sessions[req.params.session];
+    if (typeof sessions[sessionName] === "undefined" ||
+        typeof sessions[sessionName].owner === "undefined") {
+        res.status(403).send("Erreur 403 : denied.");
+    };
+    next();
+});
 
 srv.get("/penteonline/:session", (req, res) => {
     console.log(`Route 1`); console.log(`MOVE ? ${req.query.move}`);
     const sessionName = req.params.session;
-    const session=sessions[req.params.session];
+    const session = sessions[req.params.session];
     if (typeof sessions[sessionName] === "undefined" ||
         typeof sessions[sessionName].owner === "undefined") {
-        res.status(403).send("Erreur 403");
+        res.status(403).send("Erreur 403 : denied.");
     } else {
         console.log(req.ip, sessions[sessionName].gameData.activePlayer);
+io.of(`/${sessionName}`).on(`connection`,()=>{
+    socket.join(`${sessionName}`);
+    io.of(`/${sessionName}`).to(`/${sessionName}`).emit("test");
+    console.log(`${session.owner} is connected.`);
+});
+
 
         /* si le joueur appelant est le joueur actif et qu’il a joué un coup */
         if (req.ip === session.gameData.activePlayer.id
@@ -109,7 +129,7 @@ srv.get("/penteonline/:session", (req, res) => {
         };
         /* dessiner le board */
         res.append("Content-Type", "text/html;charset=utf-8");
-        res.status(200).send(viewr.render("views/game.viewr", { test: 'Pente en dév', session: sessions[sessionName] }));
+        res.status(200).send(viewr.render("views/game.viewr", { test: 'Pente en dév', session: sessions[sessionName], host: host }));
         // res.status(200).render("game.viewr", { session: sessions[sessionName] });
     };
 });
@@ -126,8 +146,22 @@ ce qui n’est pas toujours souhaitable, auquel cas il faut utiliser le module H
 app=express() n’est pas un server mais son …"framework"?
 */
 /* on écoute les sockets */
-io.on("connection",(socket)=>{
+io.on("connection", (socket) => {
     console.log("A user is connected.");
+    socket.on("moverequest", (e) => {
+        // console.log(e);
+        e = JSON.parse(e);
+        console.log(e);
+        if (e.gameState.activePlayer.index === e.gameState.playerList.length - 1) {
+            e.gameState.activePlayer = e.gameState.playerList[0];
+        } else {
+            e.gameState.activePlayer = e.gameState.playerList[e.gameState.activePlayer.index + 1];
+        };
+        socket.broadcast.emit("moveresponse", JSON.stringify(e));
+    });
+    socket.on("disconnect", () => {
+        console.log("User disconnected.");
+    });
 });
 ioserver.listen(wbs_port, () => {
     console.log("Pente server running");
