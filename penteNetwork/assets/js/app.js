@@ -1,31 +1,32 @@
 const socket = io();
-socket.on("initRes",(e)=>{
-    try{
-        console.log(e);
-        console.log(socket);
-        const p1= new app.Player(socket.id, "red");
+socket.on("initRes", (e) => {
+    try {
+        const p1 = new app.Player(socket.id, "red");
         new app.Player("Numéro2", "yellow");
         /* we set the starting player - for the moment, owner of session */
         app.gameState.activePlayer = p1;
-        console.log(`${app.gameState.activePlayer.id}`);
-    }catch(e){
+    } catch (e) {
         console.error(e);
     }
 
 })
 socket.on("moveresponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
-    console.log(`STOUT`,app.gameState);
-    const lastMoveCell=app.Cell.dictionary[app.gameState.lastMove];
+    console.log(`STOUT`, app.gameState);
+    const lastMoveCell = app.Cell.dictionary[app.gameState.lastMove];
     console.log(`${app.gameState.activePlayer.id}`);
+    /* on met à jour la vue de la dernière cellule jouée */
     lastMoveCell.update();
-    app.gameState.activePlayer.checkVictory();
-app.changePlayer();
-    console.log("move response",app.gameState);
+    /* on cherche le joueur actif dans le dictionnaire des joueurs dans Player.
+    On teste sa victoire. */
+    console.log(app.gameState.activePlayer.id,app.Player.dictionary);
+    app.Player.dictionary[app.gameState.activePlayer.id].checkVictory();
+    app.changePlayer();
+    console.log("move response", app.gameState);
 });
 
 const app = {
-    socket:socket,
+    socket: socket,
     def: {
         author: "Gary Gabrel",
         size: 19,
@@ -33,13 +34,15 @@ const app = {
     gameState: {
         session: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
+        playerDictionary:{},
         activePlayer: {},
         lastMove: "",
     },
     Player: class {
         static list = [];
+        static dictionary={};
         id = "";
-        socketId="";
+        socketId = "";
         index = -1;//sa place dans Player.list
         pairs = 0;
         move = [];//tuple
@@ -48,11 +51,12 @@ const app = {
         constructor(id, color) {
             this.id = id;
             this.color = color;
+            app.Player.dictionary[id]=this;
             this.index = app.Player.list.length;//attention à l’ordre des lignes.
             app.Player.list.push(this);
 
-        };
-        checkVictory() {
+        }
+        checkVictory(){
             console.log("not implemented yet.");
             const axes = [
                 [1, 0], [0, 1], [1, 1], [-1, 1]
@@ -162,7 +166,7 @@ const app = {
         }
         handleCellPlay = (e) => {
             console.log(`Cell id is ${e.target.id}`);
-            console.log("Joueur actif ? ",app.gameState.activePlayer);
+            console.log("Joueur actif ? ", app.gameState.activePlayer);
 
             if (this.value === "") {
                 console.log(`clic by ${app.gameState.activePlayer.id}`);
@@ -172,33 +176,33 @@ const app = {
 
 
                 /* On déclenche un évènement en lui passant l’état du jeu en donnée embarquée */
-                const gameDataPackage = {gameState: app.gameState };
+                const gameDataPackage = { gameState: app.gameState };
                 socket.emit("moverequest", JSON.stringify(gameDataPackage));
             };
         }
 
         /* Permet d’update la vue de la cellule */
         update = () => {
-                this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
-                console.log(this.stoneContainer.classList);
+            this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
+            console.log(this.stoneContainer.classList);
             console.log("IMPLEMENTER");
         }
 
     },
 
-changePlayer:()=>{
-    if (app.gameState.activePlayer.index === app.gameState.playerList.length - 1) {
-        app.gameState.activePlayer = app.gameState.playerList[0];
-    } else {
-        app.gameState.activePlayer = app.gameState.playerList[app.gameState.activePlayer.index + 1];
-    };
-},
-drawRow: (container, className) => {
-    const row = document.createElement("div");
-    row.className = className;
-    container.appendChild(row);
-    return row;
-},
+    changePlayer: () => {
+        if (app.gameState.activePlayer.index === app.gameState.playerList.length - 1) {
+            app.gameState.activePlayer = app.gameState.playerList[0];
+        } else {
+            app.gameState.activePlayer = app.gameState.playerList[app.gameState.activePlayer.index + 1];
+        };
+    },
+    drawRow: (container, className) => {
+        const row = document.createElement("div");
+        row.className = className;
+        container.appendChild(row);
+        return row;
+    },
     drawBoard: (container) => {
         const board = document.createElement("div");
         board.className = "board";
@@ -211,27 +215,27 @@ drawRow: (container, className) => {
         };
         container.appendChild(board);
     },
-        init: () => {
-            app.drawBoard(document.getElementById("gameContainer"));
-            app.gameState.playerList=app.Player.list;
-            app.gameState.session=document.getElementsByTagName("body")[0].id;
-            // console.log(app.gameState);
-            
-            socket.emit("initSession",JSON.stringify({gameState:app.gameState}));
-        }
+    init: () => {
+        app.drawBoard(document.getElementById("gameContainer"));
+        app.gameState.playerList = app.Player.list;
+        app.gameState.session = document.getElementsByTagName("body")[0].id;
+        // console.log(app.gameState);
+
+        socket.emit("initSession", JSON.stringify({ gameState: app.gameState }));
+    }
 }
 document.addEventListener("DOMContentLoaded", app.init);
 
 
-                /* Créer ici nue requête html */
+/* Créer ici nue requête html */
                 // const req = new XMLHttpRequest();
 
-                /* On lui passe des données */
+/* On lui passe des données */
                 // req.submittedData=JSON.stringify({move:this.coordinate});
 
-                /* on récupère le nom de session stocké dans l’id de body  */
+/* on récupère le nom de session stocké dans l’id de body  */
                 // const session = document.querySelector("body").id;
-                /* on poste la requête */
+/* on poste la requête */
                 // const reqJSON = encodeURI(JSON.stringify({ move: this.coordinate }));
                 // console.log(`reqJSON : ${reqJSON}`);
                 // req.open("GET", `/penteonline/${session}/?json=${reqJSON}`, false);
