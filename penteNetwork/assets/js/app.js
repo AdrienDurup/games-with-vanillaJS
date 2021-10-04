@@ -1,6 +1,7 @@
 const socket = io();
 
 const app = {
+    socket:socket,
     def: {
         author: "Gary Gabrel",
         size: 19,
@@ -191,6 +192,9 @@ drawRow: (container, className) => {
             let p2 = new app.Player("Numéro2", "yellow");
             app.gameState.activePlayer = p1;
             app.gameState.playerList=app.Player.list;
+            app.gameState.session=document.getElementsByTagName("body")[0].id;
+            console.log(app.gameState);
+            socket.emit("initSession",JSON.stringify({gameState:app.gameState}));
             socket.on("moveresponse", (e) => {
                 app.gameState = JSON.parse(e);
                 console.log(app.gameState);
