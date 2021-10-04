@@ -1,4 +1,28 @@
 const socket = io();
+socket.on("initRes",(e)=>{
+    try{
+        console.log(e);
+        console.log(socket);
+        const p1= new app.Player(socket.id, "red");
+        new app.Player("Numéro2", "yellow");
+        /* we set the starting player - for the moment, owner of session */
+        app.gameState.activePlayer = p1;
+        console.log(`${app.gameState.activePlayer.id}`);
+    }catch(e){
+        console.error(e);
+    }
+
+})
+socket.on("moveresponse", (e) => {
+    app.gameState = JSON.parse(e).gameState;
+    console.log(`STOUT`,app.gameState);
+    const lastMoveCell=app.Cell.dictionary[app.gameState.lastMove];
+    console.log(`${app.gameState.activePlayer.id}`);
+    lastMoveCell.update();
+    app.gameState.activePlayer.checkVictory();
+app.changePlayer();
+    console.log("move response",app.gameState);
+});
 
 const app = {
     socket:socket,
@@ -10,11 +34,12 @@ const app = {
         session: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
         activePlayer: {},
-        lastMove: [],
+        lastMove: "",
     },
     Player: class {
         static list = [];
         id = "";
+        socketId="";
         index = -1;//sa place dans Player.list
         pairs = 0;
         move = [];//tuple
@@ -137,37 +162,37 @@ const app = {
         }
         handleCellPlay = (e) => {
             console.log(`Cell id is ${e.target.id}`);
+            console.log("Joueur actif ? ",app.gameState.activePlayer);
 
             if (this.value === "") {
                 console.log(`clic by ${app.gameState.activePlayer.id}`);
 
-                app.gameState.lastMove = this.coordinate;
+                app.gameState.lastMove = this.id;
 
 
 
                 /* On déclenche un évènement en lui passant l’état du jeu en donnée embarquée */
-                const gameDataPackage = { gameState: app.gameState };
+                const gameDataPackage = {gameState: app.gameState };
                 socket.emit("moverequest", JSON.stringify(gameDataPackage));
-                /*                     this.value = app.gameState.activePlayer.id;
-                            app.gameState.activePlayer.move = this.coordinate; */
-
-                /*======================== à passer coté server==================================== */
-                // this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
-                console.log(this.stoneContainer.classList);
-                app.gameState.activePlayer.checkVictory();
-                // app.nextPlayer();
             };
         }
 
         /* Permet d’update la vue de la cellule */
         update = () => {
-
+                this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
+                console.log(this.stoneContainer.classList);
             console.log("IMPLEMENTER");
         }
 
     },
 
-
+changePlayer:()=>{
+    if (app.gameState.activePlayer.index === app.gameState.playerList.length - 1) {
+        app.gameState.activePlayer = app.gameState.playerList[0];
+    } else {
+        app.gameState.activePlayer = app.gameState.playerList[app.gameState.activePlayer.index + 1];
+    };
+},
 drawRow: (container, className) => {
     const row = document.createElement("div");
     row.className = className;
@@ -188,17 +213,11 @@ drawRow: (container, className) => {
     },
         init: () => {
             app.drawBoard(document.getElementById("gameContainer"));
-            let p1 = new app.Player("Adrien", "red");
-            let p2 = new app.Player("Numéro2", "yellow");
-            app.gameState.activePlayer = p1;
             app.gameState.playerList=app.Player.list;
             app.gameState.session=document.getElementsByTagName("body")[0].id;
-            console.log(app.gameState);
+            // console.log(app.gameState);
+            
             socket.emit("initSession",JSON.stringify({gameState:app.gameState}));
-            socket.on("moveresponse", (e) => {
-                app.gameState = JSON.parse(e);
-                console.log(app.gameState);
-            });
         }
 }
 document.addEventListener("DOMContentLoaded", app.init);
