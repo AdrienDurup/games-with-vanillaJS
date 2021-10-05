@@ -41,7 +41,7 @@ io.on("connection",(socket)=>{
         TO DO essayer de voir si on peut initialiser la room avant le chargement de la page, 
         entièrement en BACK  */
         socket.on("initSession",(e) => {
-            /* le nom de session est récupéré depuis <BODY>.id et stocké dans app.gameState */
+            // le nom de session est récupéré depuis <BODY>.id et stocké dans app.gameState
              const gameState = JSON.parse(e).gameState;
              const sessionName=gameState.session;
              console.log(`initSession : ${sessionName}`);
