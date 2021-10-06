@@ -8,9 +8,9 @@
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 
-<body id="${session.sessionName}">
+<body id="${session.name}">
 <header class="header">
-<h1>${session.gameData.activePlayer.name} => ${session.gameData.activePlayer.id}</h1>
+<h1>owner : ${session.owner.name} - game : ${session.name}</h1>
 <h2>${test}</h2>
 </header>
     <main class="game-container" id="gameContainer">

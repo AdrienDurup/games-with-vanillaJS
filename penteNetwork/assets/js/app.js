@@ -1,10 +1,17 @@
 const socket = io();
 socket.on("initRes", (e) => {
     try {
-        const p1 = new app.Player(socket.id, "red");
-        new app.Player("Numéro2", "yellow");
+        const res=JSON.parse(e);
+        console.log(res);
+
+const sessionData=res.sessionData;
+const myIP=res.ip;
         /* we set the starting player - for the moment, owner of session */
-        app.gameState.activePlayer = p1;
+        app.session =sessionData;
+        console.log(sessionData.owner);
+        app.gameState.activePlayer = sessionData.owner;
+        app.me=sessionData.playerDict[myIP];
+        console.log(app.me);
     } catch (e) {
         console.error(e);
     }
@@ -27,10 +34,15 @@ socket.on("moveresponse", (e) => {
 
 const app = {
     socket: socket,
+    me:{index:"2"},
     def: {
         author: "Gary Gabrel",
         size: 19,
     },
+    /* 
+    TODO faire un gameState "Event driven" avec système de snapshot et comparaison "onChange"
+    TODO pour cela faire un singleton avec accesseurs
+      */
     gameState: {
         session: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
@@ -41,17 +53,20 @@ const app = {
     Player: class {
         static list = [];
         static dictionary={};
+        name = "";
         id = "";
-        socketId = "";
+        ip="";
         index = -1;//sa place dans Player.list
         pairs = 0;
         move = [];//tuple
         /*         score=0; */
         color = "";
-        constructor(id, color) {
-            this.id = id;
+        constructor(socketId, color) {
+            this.name = "";
+            this.id=socketId;
             this.color = color;
-            app.Player.dictionary[id]=this;
+            app.Player.dictionary[this.id]=this;
+            // console.log(app.Player.dictionary);
             this.index = app.Player.list.length;//attention à l’ordre des lignes.
             app.Player.list.push(this);
 
@@ -157,10 +172,13 @@ const app = {
             this.stoneContainer = document.createElement("div");
             this.stoneContainer.className = "stone hidden";
             this.DOM.appendChild(this.stoneContainer);
+            /* 
+            TODO remplacer par une solution sans event listener et coté server
+            */
             this.DOM.addEventListener("mouseenter", (e) => {
                 // console.log("ok : "+`var(--stonePlayer${app.gameState.activePlayer.index})`);
                 e.target.style
-                    .setProperty("background-image", `var(--stonePlayer${app.gameState.activePlayer.index})`);
+                    .setProperty("background-image", `var(--stonePlayer${app.me.index})`);
             });
             this.DOM.addEventListener("click", (this.handleCellPlay));
         }
@@ -194,7 +212,7 @@ const app = {
         if (app.gameState.activePlayer.index === app.gameState.playerList.length - 1) {
             app.gameState.activePlayer = app.gameState.playerList[0];
         } else {
-            app.gameState.activePlayer = app.gameState.playerList[app.gameState.activePlayer.index + 1];
+            app.gameState.activePlayer = app.gameState.playerList[app.me.index + 1];
         };
     },
     drawRow: (container, className) => {
@@ -217,17 +235,16 @@ const app = {
     },
     init: () => {
         app.drawBoard(document.getElementById("gameContainer"));
-        app.gameState.playerList = app.Player.list;
+        // app.gameState.playerList = app.Player.list;
         app.gameState.session = document.getElementsByTagName("body")[0].id;
-        // console.log(app.gameState);
-
+        console.log(app.gameState.session);
         socket.emit("initSession", JSON.stringify({ gameState: app.gameState }));
     }
 }
 document.addEventListener("DOMContentLoaded", app.init);
 
 
-/* Créer ici nue requête html */
+/* Créer ici une requête html */
                 // const req = new XMLHttpRequest();
 
 /* On lui passe des données */

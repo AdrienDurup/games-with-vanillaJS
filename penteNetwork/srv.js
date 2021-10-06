@@ -1,12 +1,16 @@
 const xpr = require("express");
+xpr.locals={};
+const {Session} =require("./model/model");
 const routes=require("./routes");
 const socketioLogic=require("./controllers/socketioControllers");
 
-const port = "3002";
 const wbs_port = "4000";
 const host = `http://localhost:${wbs_port}`;
 
 const srv = xpr();
+
+/* setting locals object */
+
 
 /* websocket protocol handling server
 see https://socket.io/get-started/chat
@@ -15,7 +19,7 @@ const http = require("http");
 const ioserver = http.createServer(srv);
 const { Server } = require("socket.io");
 const io = new Server(ioserver);
-xpr.locals = { io: io };
+xpr.locals.io= io;
 
 /* dans express, app.listen() crée le server under the hood
 ce qui n’est pas toujours souhaitable, auquel cas il faut utiliser le module HTTP.
@@ -24,13 +28,14 @@ app=express() n’est pas un server mais son …"framework"?
 ioserver.listen(wbs_port, () => {
     console.log("Pente server running");
 });
+
 /* on écoute les sockets */
 // io.on("connection",socketioLogic.connection);
 
-
 /* Défactorisation pour test */
 io.on("connection",(socket)=>{
-
+/*
+ TODO Ajouter feature de rejoin */
         console.log(`${socket.id} is connected.`);
         socket.on("moverequest",(e) => {
             e = JSON.parse(e);
@@ -46,7 +51,8 @@ io.on("connection",(socket)=>{
              const sessionName=gameState.session;
              console.log(`initSession : ${sessionName}`);
              socket.join(gameState.session);
-             io.to(gameState.session).emit("initRes");
+            // console.log("currentSession",Session.list);
+             io.to(gameState.session).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address}));
              console.log(`${socket.id} joining game ${gameState.session}...`);
         });
         socket.on("disconnect",() => {

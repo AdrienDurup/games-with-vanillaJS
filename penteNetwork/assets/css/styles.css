@@ -6,6 +6,7 @@
     --colorPlayer1:rgb(255, 217, 2);
     --stonePlayer0:url("../img/stone.svg");
     --stonePlayer1:url("../img/stone2.svg");
+    --stonePlayer2:url("../img/stone3.svg");
 }
 /* .game-container {
 
