@@ -40,25 +40,30 @@ module.exports = {
                 const sessionName = req.query.session;
                 const owner = new Player(req.query.owner, req.ip);
                 owner.label = "owner";
+                owner.color="red";
                 sessions[sessionName] = new Session(sessionName, owner);
                 // console.log(sessions[sessionName]);
-                res.redirect(`/penteonline/${sessionName}`);
+                res.redirect(`/penteonline/${sessionName}/${encodeURI(owner.name)}`);
             }else{
                 // Sinon on rejette l’accès à la création 
                 res.status(403).send("Erreur 403 : denied.");
             };
            
 
-
+/* si les données sont fournies pour la création d’un guest, on rojoint la partie */
         } else if (typeof req.query.session !== "undefined" && req.query.session !== ""
             && typeof req.query.guest !== "undefined" && req.query.guest !== "") {
-            const session = sessions[req.query.session];
+            const session = Session.list[req.query.session];
             if (session !== undefined) {
-                session.guest = new Player(req.query.guest, req.ip);
-                session.playerList.push(guest);
+                const guest = new Player(req.query.guest, req.ip);
+                guest.color="yellow";
+                session.addPlayer(guest,"guest");
+                console.log(session.guest,session.playerDict[guest.name]);
+            }else{
+                res.status(403).send("Erreur 403 : denied.");
             };
             // console.log(sessions[sessionName]);
-            res.redirect(`/penteonline/${sessionName}`);
+            res.redirect(`/penteonline/${session.name}/${encodeURI(session.guest.name)}`);
         } else {
             res.status(200).send("Définir session avec ?session=&owner=");
         };
@@ -76,7 +81,7 @@ module.exports = {
 
         /* dessiner le board */
         res.append("Content-Type", "text/html;charset=utf-8");
-        res.status(200).send(viewr.render("views/game.viewr", { test: 'Pente en dév', session, ip: req.ip, host: host }));
+        res.status(200).send(viewr.render("views/game.viewr", { test: 'Pente en dév', session, ip: req.ip,name:req.params.name, host: host }));
     },
 
 }

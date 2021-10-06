@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 
-<body id="${session.name}">
+<body id="${session.name}__${name}">
 <header class="header">
 <h1>owner : ${session.owner.name} - game : ${session.name}</h1>
 <h2>${test}</h2>

@@ -10,6 +10,6 @@ const routeLogic=require("./controllers/routesControllers");
 router.use(xpr.static("assets"));
 router.use(routeLogic.log);
 router.get("/", routeLogic.root);
-router.get("/penteonline/:session", routeLogic.session);
+router.get("/penteonline/:session/:name", routeLogic.session);
 
 module.exports=router;

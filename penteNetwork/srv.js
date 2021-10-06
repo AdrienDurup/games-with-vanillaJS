@@ -18,6 +18,9 @@ see https://socket.io/get-started/chat
 const http = require("http");
 const ioserver = http.createServer(srv);
 const { Server } = require("socket.io");
+let gameLogic=require("./gameLogic");
+gameLogic=new gameLogic(); 
+console.log(gameLogic);
 const io = new Server(ioserver);
 xpr.locals.io= io;
 
@@ -38,22 +41,39 @@ io.on("connection",(socket)=>{
  TODO Ajouter feature de rejoin */
         console.log(`${socket.id} is connected.`);
         socket.on("moverequest",(e) => {
-            e = JSON.parse(e);
-            console.log(socket.rooms);
-            io.to(e.gameState.session).emit("moveresponse", JSON.stringify(e));
+            const state= JSON.parse(e).gameState;
+            // console.log(socket.rooms);
+            const session=Session.list[state.sessionName];
+            const player=state.activePlayer;
+            // const isVictorious=gameLogic.checkVictory(player);
+            // console.log(isVictorious);
+
+            /* changement de joueur */
+            if(state.activePlayer.index<session.playerList.length-1){
+                state.activePlayer=session.playerList[state.activePlayer.index+1];
+            }else{
+                state.activePlayer=session.playerList[0];
+            };
+            console.log(JSON.stringify(state));
+            io.to(state.sessionName).emit("moveresponse", JSON.stringify({gameState:state}));
         });
         /* quand la page de jeu charge on initialise la session socket.io avec le nom de session
         TO DO essayer de voir si on peut initialiser la room avant le chargement de la page, 
         entièrement en BACK  */
         socket.on("initSession",(e) => {
             // le nom de session est récupéré depuis <BODY>.id et stocké dans app.gameState
-             const gameState = JSON.parse(e).gameState;
-             const sessionName=gameState.session;
+            // le nom de joueur est récupéré depuis <BODY>.id et sert à déterminer app.me TODO
+            const obj=JSON.parse(e);
+             const gameState = obj.gameState;
+             const myName=obj.myName;
+             const sessionName=gameState.sessionName;
              console.log(`initSession : ${sessionName}`);
-             socket.join(gameState.session);
+             socket.join(sessionName);
             // console.log("currentSession",Session.list);
-             io.to(gameState.session).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address}));
-             console.log(`${socket.id} joining game ${gameState.session}...`);
+            /* 
+            TODO ajouter name */
+             io.to(sessionName).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
+             console.log(`${socket.id} joining game ${sessionName}...`);
         });
         socket.on("disconnect",() => {
             console.log("User disconnected.");

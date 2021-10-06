@@ -40,6 +40,7 @@ class Session {
     playerDict = {};
     owner;
     guest = {};
+    visitors=[];
     gameState={};
     constructor(sessionName, owner) {
         this.name = sessionName;
@@ -47,11 +48,23 @@ class Session {
         this.index= Session.nextIndex++;
         console.log(this.index,Session.nextIndex);
         this.playerList = [owner];
-        this.playerDict[owner.ip] = owner;
+        this.playerDict[owner.name] = owner;
         // this.gameState= new GameData(owner);
         Session.list[this.name]=this;
+        
     }
-
+    addPlayer(player,label="owner"||"guest"||"visitor"){
+      
+        if(label==="owner"||"guest"){
+            console.log(label);
+        this[label]=player;
+        this.playerDict[player.name]=player;
+        this.playerList.push(player);
+        }else if(label==="visitor"){
+            console.log(label);
+            this.visitors.push(player);
+        };
+    }
 }
 class GameData {
     constructor(player) {

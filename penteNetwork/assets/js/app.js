@@ -1,16 +1,17 @@
 const socket = io();
 socket.on("initRes", (e) => {
     try {
-        const res=JSON.parse(e);
+        const res = JSON.parse(e);
         console.log(res);
 
-const sessionData=res.sessionData;
-const myIP=res.ip;
+        const sessionData = res.sessionData;
+        const myName = res.myName;
         /* we set the starting player - for the moment, owner of session */
-        app.session =sessionData;
+        app.session = sessionData;
         console.log(sessionData.owner);
         app.gameState.activePlayer = sessionData.owner;
-        app.me=sessionData.playerDict[myIP];
+        console.log("init active player :", app.gameState.activePlayer.ip, app.gameState.activePlayer.name);
+        app.me = sessionData.playerDict[myName];
         console.log(app.me);
     } catch (e) {
         console.error(e);
@@ -21,20 +22,21 @@ socket.on("moveresponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
     console.log(`STOUT`, app.gameState);
     const lastMoveCell = app.Cell.dictionary[app.gameState.lastMove];
-    console.log(`${app.gameState.activePlayer.id}`);
+    console.log(`current player is ${app.gameState.activePlayer.ip, app.gameState.activePlayer.name}`);
     /* on met à jour la vue de la dernière cellule jouée */
     lastMoveCell.update();
     /* on cherche le joueur actif dans le dictionnaire des joueurs dans Player.
     On teste sa victoire. */
-    console.log(app.gameState.activePlayer.id,app.Player.dictionary);
-    app.Player.dictionary[app.gameState.activePlayer.id].checkVictory();
-    app.changePlayer();
+    console.log(app.gameState.activePlayer.id, app.Player.dictionary);
+    // app.Player.dictionary[app.gameState.activePlayer.id].checkVictory();
+    // app.changePlayer();
     console.log("move response", app.gameState);
 });
 
 const app = {
     socket: socket,
-    me:{index:"2"},
+    session: {},
+    me: { index: "2" },//replaced by player object
     def: {
         author: "Gary Gabrel",
         size: 19,
@@ -44,18 +46,18 @@ const app = {
     TODO pour cela faire un singleton avec accesseurs
       */
     gameState: {
-        session: "",//récuperer la valeur via l’ID de Body ?
+        sessionName: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
-        playerDictionary:{},
+        playerDictionary: {},
         activePlayer: {},
         lastMove: "",
     },
     Player: class {
         static list = [];
-        static dictionary={};
+        static dictionary = {};
         name = "";
         id = "";
-        ip="";
+        ip = "";
         index = -1;//sa place dans Player.list
         pairs = 0;
         move = [];//tuple
@@ -63,83 +65,14 @@ const app = {
         color = "";
         constructor(socketId, color) {
             this.name = "";
-            this.id=socketId;
+            this.id = socketId;
             this.color = color;
-            app.Player.dictionary[this.id]=this;
+            app.Player.dictionary[this.id] = this;
             // console.log(app.Player.dictionary);
             this.index = app.Player.list.length;//attention à l’ordre des lignes.
             app.Player.list.push(this);
 
         }
-        checkVictory(){
-            console.log("not implemented yet.");
-            const axes = [
-                [1, 0], [0, 1], [1, 1], [-1, 1]
-            ];
-
-            for (let i = 0; i < axes.length; i++) {
-                /* vérifie si on a aligné 5 pierres */
-                let score = this.checkAxis(axes[i]);
-                console.log(`score sur l’axe ${axes[i]} : ${score}`);
-                /* Verifie si on vient de capturer des paires */
-                this.checkPair(axes[i]);
-                this.checkPair([axes[i][0] * -1, axes[i][1] * -1]);
-                if (score >= 5 || this.pairs === 5) {
-                    app.gameOver();
-                    break;
-                };
-            };
-
-        }
-        checkAxis(axis) {//tuple from axes array
-            let score = 1;
-            /* compte les pierres dans un sens */
-            score += this.checkOneDirection(axis);
-            /* reverse : compte les pierres en sens inverse*/
-            score += this.checkOneDirection([axis[0] * -1, axis[1] * -1]);
-            return score;
-        }
-        /* compte le nombre de pierres dans une direction en partant de la pierre jouée. */
-        checkOneDirection(axis) {
-            let score = 0;
-            for (let i = 1; i < 5; i++) {
-                const id = `cell_${this.move[0] + axis[0] * i}_${this.move[1] + axis[1] * i}`;
-                if (app.Cell.dictionary[id] !== undefined//Si on est hors champ on doit breaker
-                    && app.Cell.dictionary[id].value === this.id) {
-                    score++;
-                } else {
-                    break;
-                };
-            };
-            return score;
-        }
-        checkPair(axis) {
-            let pairCheck = [];
-            let isPairCheckValid = true;
-            for (let i = 1; i < 4; i++) {
-                const id = `cell_${this.move[0] + axis[0] * i}_${this.move[1] + axis[1] * i}`;
-                let aheadCell = app.Cell.dictionary[id];
-                if (aheadCell !== undefined) {
-                    pairCheck.push({ id: id, value: aheadCell.value });
-                } else {
-                    isPairCheckValid = false;
-                };
-
-            }
-            if (isPairCheckValid === true
-                && pairCheck[0].value !== this.id
-                && pairCheck[0].value === pairCheck[1].value
-                && pairCheck[0].value !== ""
-                && pairCheck[2].value === this.id
-            ) {
-                this.pairs++;
-                console.log(this.pairs);
-                app.deleteStone(pairCheck[0].id);
-                app.deleteStone(pairCheck[1].id);
-            };
-        }
-
-
     },
     deleteStone: (id) => {
         app.Cell.dictionary[id].stoneContainer.classList.add("hidden");
@@ -185,17 +118,17 @@ const app = {
         handleCellPlay = (e) => {
             console.log(`Cell id is ${e.target.id}`);
             console.log("Joueur actif ? ", app.gameState.activePlayer);
-
+            console.log("my turn ?",app.gameState.activePlayer.ip+app.gameState.activePlayer.name,app.me.ip+app.me.name);
+            if (app.gameState.activePlayer.ip+app.gameState.activePlayer.name !== app.me.ip+app.me.name) {
+                return;
+            };
             if (this.value === "") {
                 console.log(`clic by ${app.gameState.activePlayer.id}`);
 
                 app.gameState.lastMove = this.id;
-
-
-
+                console.log("handleCellPlay : last move :", app.gameState.lastMove);
                 /* On déclenche un évènement en lui passant l’état du jeu en donnée embarquée */
-                const gameDataPackage = { gameState: app.gameState };
-                socket.emit("moverequest", JSON.stringify(gameDataPackage));
+                socket.emit("moverequest", JSON.stringify({ gameState: app.gameState }));
             };
         }
 
@@ -236,9 +169,11 @@ const app = {
     init: () => {
         app.drawBoard(document.getElementById("gameContainer"));
         // app.gameState.playerList = app.Player.list;
-        app.gameState.session = document.getElementsByTagName("body")[0].id;
-        console.log(app.gameState.session);
-        socket.emit("initSession", JSON.stringify({ gameState: app.gameState }));
+        const sessionInfo=document.getElementsByTagName("body")[0].id.split("__");
+        app.gameState.sessionName =sessionInfo[0];
+    const myName=sessionInfo[1];
+        console.log(app.gameState.sessionName);
+        socket.emit("initSession", JSON.stringify({ gameState: app.gameState,myName }));
     }
 }
 document.addEventListener("DOMContentLoaded", app.init);
