@@ -38,7 +38,7 @@ ioserver.listen(wbs_port, () => {
 /* Défactorisation pour test */
 io.on("connection",(socket)=>{
 /*
- TODO Ajouter feature de rejoin */
+ TODO Ajouter feature de rejoin avec update ip et socket si besoin */
         console.log(`${socket.id} is connected.`);
         socket.on("moverequest",(e) => {
             const state= JSON.parse(e).gameState;
@@ -62,7 +62,7 @@ io.on("connection",(socket)=>{
         entièrement en BACK  */
         socket.on("initSession",(e) => {
             // le nom de session est récupéré depuis <BODY>.id et stocké dans app.gameState
-            // le nom de joueur est récupéré depuis <BODY>.id et sert à déterminer app.me TODO
+            // le nom de joueur est récupéré depuis <BODY>.id et sert à déterminer app.me
             const obj=JSON.parse(e);
              const gameState = obj.gameState;
              const myName=obj.myName;
@@ -70,9 +70,9 @@ io.on("connection",(socket)=>{
              console.log(`initSession : ${sessionName}`);
              socket.join(sessionName);
             // console.log("currentSession",Session.list);
-            /* 
-            TODO ajouter name */
-             io.to(sessionName).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
+            /* Pour l’initialisation on envoie que vers le socket appelant */
+            socket.emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
+            //  io.to(sessionName).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
              console.log(`${socket.id} joining game ${sessionName}...`);
         });
         socket.on("disconnect",() => {

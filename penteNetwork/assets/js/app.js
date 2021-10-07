@@ -8,11 +8,11 @@ socket.on("initRes", (e) => {
         const myName = res.myName;
         /* we set the starting player - for the moment, owner of session */
         app.session = sessionData;
-        console.log(sessionData.owner);
+        console.log("owner",sessionData.owner);
         app.gameState.activePlayer = sessionData.owner;
         console.log("init active player :", app.gameState.activePlayer.ip, app.gameState.activePlayer.name);
         app.me = sessionData.playerDict[myName];
-        console.log(app.me);
+        console.log("initres app.me",app.me);
     } catch (e) {
         console.error(e);
     }
@@ -109,7 +109,6 @@ const app = {
             TODO remplacer par une solution sans event listener et coté server
             */
             this.DOM.addEventListener("mouseenter", (e) => {
-                // console.log("ok : "+`var(--stonePlayer${app.gameState.activePlayer.index})`);
                 e.target.style
                     .setProperty("background-image", `var(--stonePlayer${app.me.index})`);
             });
@@ -124,7 +123,6 @@ const app = {
             };
             if (this.value === "") {
                 console.log(`clic by ${app.gameState.activePlayer.id}`);
-
                 app.gameState.lastMove = this.id;
                 console.log("handleCellPlay : last move :", app.gameState.lastMove);
                 /* On déclenche un évènement en lui passant l’état du jeu en donnée embarquée */
