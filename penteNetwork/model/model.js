@@ -32,7 +32,7 @@ class Player {
     }
 }
 class Session {
-    static list = {};
+    static list = {};//changer pour dict
     static nextIndex=0;
     name;
     index;
@@ -41,14 +41,15 @@ class Session {
     owner;
     guest = {};
     visitors=[];
-    gameState={};
-    constructor(sessionName, owner) {
+    logic={};
+    constructor(sessionName, owner,gameLogic) {
         this.name = sessionName;
         this.owner = owner;
         this.index= Session.nextIndex++;
         console.log(this.index,Session.nextIndex);
         this.playerList = [owner];
         this.playerDict[owner.name] = owner;
+        this.logic=gameLogic;
         // this.gameState= new GameData(owner);
         Session.list[this.name]=this;
         

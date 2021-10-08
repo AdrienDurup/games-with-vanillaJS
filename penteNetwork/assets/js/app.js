@@ -1,4 +1,8 @@
 const socket = io();
+/*
+ TODO refactoriser en passant tout le game logic coté server : socket ne servira qu’à déclencher la récupération de data : vue des coups joués,
+ TODO et autorisation à jouer pour le joueur actif. le gameState est stocké côté server une fois plutot qu’en double sur chaque client.
+  */
 socket.on("initRes", (e) => {
     try {
         const res = JSON.parse(e);
@@ -8,17 +12,13 @@ socket.on("initRes", (e) => {
         const myName = res.myName;
         /* we set the starting player - for the moment, owner of session */
         app.session = sessionData;
-        console.log("owner",sessionData.owner);
-        app.gameState.activePlayer = sessionData.owner;
-        console.log("init active player :", app.gameState.activePlayer.ip, app.gameState.activePlayer.name);
         app.me = sessionData.playerDict[myName];
-        console.log("initres app.me",app.me);
     } catch (e) {
         console.error(e);
     }
 
 })
-socket.on("moveresponse", (e) => {
+socket.on("moveResponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
     console.log(`STOUT`, app.gameState);
     const lastMoveCell = app.Cell.dictionary[app.gameState.lastMove];
@@ -27,14 +27,21 @@ socket.on("moveresponse", (e) => {
     lastMoveCell.update();
     /* on cherche le joueur actif dans le dictionnaire des joueurs dans Player.
     On teste sa victoire. */
-    console.log(app.gameState.activePlayer.id, app.Player.dictionary);
     // app.Player.dictionary[app.gameState.activePlayer.id].checkVictory();
-    // app.changePlayer();
-    console.log("move response", app.gameState);
+
+    /* on change de joueur actif. déclenché une fois du coté du joueur actif */
+    console.log(app.gameState.activePlayer.name===app.me.name);
+    if(app.gameState.activePlayer.name===app.me.name){
+        socket.emit("changePlayer", JSON.stringify({ gameState: app.gameState }));
+    };
+    
+});
+socket.on("changePlayerResponse", (e) => {
+    app.gameState = JSON.parse(e).gameState;
 });
 
 const app = {
-    socket: socket,
+    // socket: socket,
     session: {},
     me: { index: "2" },//replaced by player object
     def: {
@@ -115,15 +122,20 @@ const app = {
             this.DOM.addEventListener("click", (this.handleCellPlay));
         }
         handleCellPlay = (e) => {
+            /* 
+            TODO faire des requetes au server et virer la logique totalement d’ici */
             console.log(`Cell id is ${e.target.id}`);
             console.log("Joueur actif ? ", app.gameState.activePlayer);
-            console.log("my turn ?",app.gameState.activePlayer.ip+app.gameState.activePlayer.name,app.me.ip+app.me.name);
-            if (app.gameState.activePlayer.ip+app.gameState.activePlayer.name !== app.me.ip+app.me.name) {
+            console.log("my turn ?", app.gameState.activePlayer.ip + app.gameState.activePlayer.name, app.me.ip + app.me.name);
+            /* controlons si la personne qui clique a le droit de jouer */
+            if (app.gameState.activePlayer.ip + app.gameState.activePlayer.name !== app.me.ip + app.me.name) {
                 return;
             };
+            /* si la cellule est vide, le coup est validé */
             if (this.value === "") {
                 console.log(`clic by ${app.gameState.activePlayer.id}`);
                 app.gameState.lastMove = this.id;
+                app.gameState.activePlayer.move=this.coordinate;
                 console.log("handleCellPlay : last move :", app.gameState.lastMove);
                 /* On déclenche un évènement en lui passant l’état du jeu en donnée embarquée */
                 socket.emit("moverequest", JSON.stringify({ gameState: app.gameState }));
@@ -167,11 +179,11 @@ const app = {
     init: () => {
         app.drawBoard(document.getElementById("gameContainer"));
         // app.gameState.playerList = app.Player.list;
-        const sessionInfo=document.getElementsByTagName("body")[0].id.split("__");
-        app.gameState.sessionName =sessionInfo[0];
-    const myName=sessionInfo[1];
+        const sessionInfo = document.getElementsByTagName("body")[0].id.split("__");
+        app.gameState.sessionName = sessionInfo[0];
+        const myName = sessionInfo[1];
         console.log(app.gameState.sessionName);
-        socket.emit("initSession", JSON.stringify({ gameState: app.gameState,myName }));
+        socket.emit("initSession", JSON.stringify({ gameState: app.gameState, myName }));
     }
 }
 document.addEventListener("DOMContentLoaded", app.init);

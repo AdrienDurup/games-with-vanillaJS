@@ -1,5 +1,6 @@
 const xpr = require("express");
 const { Player, GameData, Session } = require("../model/model");
+const { GameLogic } = require("../gameLogic");
 const port = "3002";
 const wbs_port = "4000";
 const host = `http://localhost:${wbs_port}`;
@@ -35,32 +36,33 @@ module.exports = {
         if (typeof req.query.session !== "undefined" && req.query.session !== ""
             && typeof req.query.owner !== "undefined" && req.query.owner !== "") {
             /* on check si la sessionn’existe pas déjà */
-            if (typeof Session.list[req.query.session]==="undefined") {
+            if (typeof Session.list[req.query.session] === "undefined") {
                 /* on crée les données de session */
                 const sessionName = req.query.session;
                 const owner = new Player(req.query.owner, req.ip);
                 owner.label = "owner";
-                owner.color="red";
-                sessions[sessionName] = new Session(sessionName, owner);
+                owner.color = "red";
+                myGameLogic=new GameLogic(sessionName);
+                myGameLogic.state.activePlayer=owner;
+                sessions[sessionName] = new Session(sessionName, owner,myGameLogic );
+                // const myGame=new GameLogic();
                 // console.log(sessions[sessionName]);
                 res.redirect(`/penteonline/${sessionName}/${encodeURI(owner.name)}`);
-            }else{
+            } else {
                 // Sinon on rejette l’accès à la création 
-                res.status(403).send("Erreur 403 : denied.");
+                res.status(403).send("Error 403 : denied.");
             };
-           
-
-/* si les données sont fournies pour la création d’un guest, on rojoint la partie */
+            /* si les données sont fournies pour la création d’un guest, on rejoint la partie */
         } else if (typeof req.query.session !== "undefined" && req.query.session !== ""
             && typeof req.query.guest !== "undefined" && req.query.guest !== "") {
             const session = Session.list[req.query.session];
             if (session !== undefined) {
                 const guest = new Player(req.query.guest, req.ip);
-                guest.color="yellow";
-                session.addPlayer(guest,"guest");
-                console.log(session.guest,session.playerDict[guest.name]);
-            }else{
-                res.status(403).send("Erreur 403 : denied.");
+                guest.color = "yellow";
+                session.addPlayer(guest, "guest");
+                console.log(session.guest, session.playerDict[guest.name]);
+            } else {
+                res.status(403).send("Error 403 : denied.");
             };
             // console.log(sessions[sessionName]);
             res.redirect(`/penteonline/${session.name}/${encodeURI(session.guest.name)}`);
@@ -73,15 +75,16 @@ module.exports = {
         // console.log(`Route 1`); console.log(`MOVE ? ${req.query.move}`);
         // console.log(req.ip, sessions[sessionName].gameData.activePlayer);
         const session = Session.list[req.params.session];
+        console.log("session logic => ",session.logic.state);
         // console.log("route session",Session.list);
         if (typeof session === "undefined" ||
             typeof session.owner === "undefined") {
-            res.status(403).send("Erreur 403 : denied.");
+            res.status(403).send("Error 403 : denied.");
         };
 
         /* dessiner le board */
         res.append("Content-Type", "text/html;charset=utf-8");
-        res.status(200).send(viewr.render("views/game.viewr", { test: 'Pente en dév', session, ip: req.ip,name:req.params.name, host: host }));
+        res.status(200).send(viewr.render("views/game.viewr", { test: 'Pente en dév', session, ip: req.ip, name: req.params.name, host: host }));
     },
 
 }

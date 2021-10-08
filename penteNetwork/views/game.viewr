@@ -10,7 +10,7 @@
 
 <body id="${session.name}__${name}">
 <header class="header">
-<h1>owner : ${session.owner.name} - game : ${session.name}</h1>
+<h1>partie : ${session.name}</h1>
 <h2>${test}</h2>
 </header>
     <main class="game-container" id="gameContainer">
