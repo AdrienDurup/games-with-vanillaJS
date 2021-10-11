@@ -41,30 +41,39 @@ io.on("connection", (socket) => {
     console.log(`${socket.id} is connected.`);
     socket.on("moverequest", (e) => {
         const state = JSON.parse(e).gameState;
+        const sessionName=state.sessionName;
         // const session=Session.list[state.sessionName];
         // console.log("GameLogic",GameLogic.dict);
-        const game=GameLogic.dict[state.sessionName];
+        const game=GameLogic.dict[sessionName];
+        game.state.activePlayer.move=state.activePlayer.move;
+        game.state.lastMoveId=state.lastMoveId;
+        // console.log(game);
         const lastMove=state.activePlayer.move;
-        console.log("lastMove : ",lastMove);
+        // console.log("lastMove : ",lastMove);
         game.state.moveMap[lastMove[0]][lastMove[1]]=state.activePlayer.name;
-        console.log(game.state.moveMap);
-        GameLogic.checkVictory(game.state);
-        // console.log(isVictorious);
-        io.to(state.sessionName).emit("moveResponse", JSON.stringify({ gameState: state }));
+        // console.log(game.state.activePlayer.move);
+        // console.log(game.state);
+         GameLogic.checkVictory(game.state);
+         if(game.state.victory!==""){
+             console.log(`Victory for ${game.state.activePlayer.name}`);
+         };
+         //GameLogic.changePlayer(game);
+         
+        console.log("game.state.toDelete",game.state.toDelete);
+        io.to(sessionName).emit("moveResponse", JSON.stringify({ gameState: game.state }));
     });
+    
     socket.on("changePlayer", (e) => {
         /* 
         TODO rapatrier gameState coté server */
-        const gameState = JSON.parse(e).gameState;
-        const session = Session.list[gameState.sessionName];
+         const sessionName = JSON.parse(e).sessionName;
+        // const session = Session.list[sessionName];
         /* changement de joueur */
-        if (gameState.activePlayer.index < session.playerList.length - 1) {
-            gameState.activePlayer = session.playerList[gameState.activePlayer.index + 1];
-        } else {
-            gameState.activePlayer = session.playerList[0];
-        };
-        io.to(gameState.sessionName).emit("changePlayerResponse", JSON.stringify({ gameState: gameState }));
+        const game=GameLogic.dict[sessionName];
+        GameLogic.changePlayer(game);
+        io.to(sessionName).emit("changePlayerResponse", JSON.stringify({ gameState: game.state }));
     });
+
     /* quand la page de jeu charge on initialise la session socket.io avec le nom de session
     TO DO essayer de voir si on peut initialiser la room avant le chargement de la page, 
     entièrement en BACK  */
@@ -75,11 +84,12 @@ io.on("connection", (socket) => {
         const gameState = obj.gameState;
         const myName = obj.myName;
         const sessionName = gameState.sessionName;
+        const gameLogic=GameLogic.dict[sessionName];
         console.log(`initSession : ${sessionName}`);
         socket.join(sessionName);
         // console.log("currentSession",Session.list);
         /* Pour l’initialisation on envoie que vers le socket appelant */
-        socket.emit("initRes", JSON.stringify({ sessionData: Session.list[sessionName], ip: socket.handshake.address, myName }));
+        socket.emit("initRes", JSON.stringify({ sessionData: Session.list[sessionName], ip: socket.handshake.address, myName}));
         //  io.to(sessionName).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
         console.log(`${socket.id} joining game ${sessionName}...`);
     });

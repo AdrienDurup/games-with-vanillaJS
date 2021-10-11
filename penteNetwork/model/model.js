@@ -49,6 +49,8 @@ class Session {
         console.log(this.index,Session.nextIndex);
         this.playerList = [owner];
         this.playerDict[owner.name] = owner;
+        gameLogic.state.sessionName=this.name;
+        gameLogic.state.playerList=this.playerList;
         this.logic=gameLogic;
         // this.gameState= new GameData(owner);
         Session.list[this.name]=this;

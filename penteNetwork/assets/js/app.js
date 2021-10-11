@@ -7,35 +7,47 @@ socket.on("initRes", (e) => {
     try {
         const res = JSON.parse(e);
         console.log(res);
-
         const sessionData = res.sessionData;
         const myName = res.myName;
         /* we set the starting player - for the moment, owner of session */
         app.session = sessionData;
+        app.gameState = sessionData.logic.state;
+        console.log("active", app.gameState.activePlayer.name);
         app.me = sessionData.playerDict[myName];
     } catch (e) {
         console.error(e);
     }
 
 })
+
 socket.on("moveResponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
     console.log(`STOUT`, app.gameState);
-    const lastMoveCell = app.Cell.dictionary[app.gameState.lastMove];
+    const lastMoveCell = app.Cell.dictionary[app.gameState.lastMoveId];
     console.log(`current player is ${app.gameState.activePlayer.ip, app.gameState.activePlayer.name}`);
     /* on met à jour la vue de la dernière cellule jouée */
     lastMoveCell.update();
-    /* on cherche le joueur actif dans le dictionnaire des joueurs dans Player.
-    On teste sa victoire. */
-    // app.Player.dictionary[app.gameState.activePlayer.id].checkVictory();
-
-    /* on change de joueur actif. déclenché une fois du coté du joueur actif */
-    console.log(app.gameState.activePlayer.name===app.me.name);
-    if(app.gameState.activePlayer.name===app.me.name){
-        socket.emit("changePlayer", JSON.stringify({ gameState: app.gameState }));
+    /* on supprime des paires sur le tablier */
+    if (app.gameState.toDelete.length > 0) {
+        for (el of app.gameState.toDelete) {
+            app.deleteStone(el);
+        };
     };
-    
+    /* on change de joueur actif. déclenché une fois du coté du joueur actif */
+    if (app.gameState.activePlayer.name === app.me.name) {
+        socket.emit("changePlayer",JSON.stringify({sessionName:app.gameState.sessionName}));
+    };
 });
+
+// socket.on("deleteStoneResponse",(e)=>{
+//     const deletionArray=JSON.parse(e);
+//     for(el of deletionArray){
+//         const id=`cell_${el[0]}_${el[1]}`;
+//         app.Cell.dictionary[id].stoneContainer.classList.add("hidden");
+//         app.Cell.dictionary[id].value = "";
+//     };
+//     })
+
 socket.on("changePlayerResponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
 });
@@ -57,7 +69,7 @@ const app = {
         playerList: [],
         playerDictionary: {},
         activePlayer: {},
-        lastMove: "",
+        lastMoveId: "",
     },
     Player: class {
         static list = [];
@@ -81,10 +93,7 @@ const app = {
 
         }
     },
-    deleteStone: (id) => {
-        app.Cell.dictionary[id].stoneContainer.classList.add("hidden");
-        app.Cell.dictionary[id].value = "";
-    },
+
     gameOver: () => {
         console.log(`${app.gameState.activePlayer.id} a gagné !`);
     },
@@ -133,10 +142,10 @@ const app = {
             };
             /* si la cellule est vide, le coup est validé */
             if (this.value === "") {
-                console.log(`clic by ${app.gameState.activePlayer.id}`);
-                app.gameState.lastMove = this.id;
-                app.gameState.activePlayer.move=this.coordinate;
-                console.log("handleCellPlay : last move :", app.gameState.lastMove);
+                console.log(`clic by ${app.gameState.activePlayer.name}`);
+                app.gameState.lastMoveId = this.id;
+                app.gameState.activePlayer.move = this.coordinate;
+                console.log("handleCellPlay : last move :", app.gameState.lastMoveId);
                 /* On déclenche un évènement en lui passant l’état du jeu en donnée embarquée */
                 socket.emit("moverequest", JSON.stringify({ gameState: app.gameState }));
             };
@@ -151,13 +160,12 @@ const app = {
 
     },
 
-    changePlayer: () => {
-        if (app.gameState.activePlayer.index === app.gameState.playerList.length - 1) {
-            app.gameState.activePlayer = app.gameState.playerList[0];
-        } else {
-            app.gameState.activePlayer = app.gameState.playerList[app.me.index + 1];
-        };
+    deleteStone: (coordinate) => {
+        const id = `cell_${coordinate[0]}_${coordinate[1]}`;
+        app.Cell.dictionary[id].stoneContainer.classList.add("hidden");
+        app.Cell.dictionary[id].value = "";
     },
+
     drawRow: (container, className) => {
         const row = document.createElement("div");
         row.className = className;
