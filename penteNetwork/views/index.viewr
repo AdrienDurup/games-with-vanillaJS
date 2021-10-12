@@ -1,0 +1,17 @@
+${outerComponent("views/partials/pagebase")}
+<header>
+<h1 class="title">
+Pente Online
+</h1>
+</header>
+<main>
+<form id="startGame">
+<label name="new-session">Nouvelle Partie</label>
+<input type="text" id="new-session" name="new-session">
+<button>créer une partie</button>
+<button></button>
+</form>
+</main>
+<footer>
+©Adrien Durup
+</footer>

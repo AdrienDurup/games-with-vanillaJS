@@ -35,18 +35,9 @@ socket.on("moveResponse", (e) => {
     };
     /* on change de joueur actif. déclenché une fois du coté du joueur actif */
     if (app.gameState.activePlayer.name === app.me.name) {
-        socket.emit("changePlayer",JSON.stringify({sessionName:app.gameState.sessionName}));
+        socket.emit("changePlayer", JSON.stringify({ sessionName: app.gameState.sessionName }));
     };
 });
-
-// socket.on("deleteStoneResponse",(e)=>{
-//     const deletionArray=JSON.parse(e);
-//     for(el of deletionArray){
-//         const id=`cell_${el[0]}_${el[1]}`;
-//         app.Cell.dictionary[id].stoneContainer.classList.add("hidden");
-//         app.Cell.dictionary[id].value = "";
-//     };
-//     })
 
 socket.on("changePlayerResponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
@@ -64,34 +55,12 @@ const app = {
     TODO faire un gameState "Event driven" avec système de snapshot et comparaison "onChange"
     TODO pour cela faire un singleton avec accesseurs
       */
-    gameState: {
+    gameState: {//se récupère régulièrement depuis le serveur
         sessionName: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
         playerDictionary: {},
         activePlayer: {},
         lastMoveId: "",
-    },
-    Player: class {
-        static list = [];
-        static dictionary = {};
-        name = "";
-        id = "";
-        ip = "";
-        index = -1;//sa place dans Player.list
-        pairs = 0;
-        move = [];//tuple
-        /*         score=0; */
-        color = "";
-        constructor(socketId, color) {
-            this.name = "";
-            this.id = socketId;
-            this.color = color;
-            app.Player.dictionary[this.id] = this;
-            // console.log(app.Player.dictionary);
-            this.index = app.Player.list.length;//attention à l’ordre des lignes.
-            app.Player.list.push(this);
-
-        }
     },
 
     gameOver: () => {
@@ -159,19 +128,20 @@ const app = {
         }
 
     },
-
+    /* Pour supprimer une paire de pierres de la vue */
     deleteStone: (coordinate) => {
         const id = `cell_${coordinate[0]}_${coordinate[1]}`;
         app.Cell.dictionary[id].stoneContainer.classList.add("hidden");
         app.Cell.dictionary[id].value = "";
     },
-
+    /* Pour créer une rangée dans la vue */
     drawRow: (container, className) => {
         const row = document.createElement("div");
         row.className = className;
         container.appendChild(row);
         return row;
     },
+    /* Pour créer le plateau dans la vue */
     drawBoard: (container) => {
         const board = document.createElement("div");
         board.className = "board";
@@ -184,9 +154,9 @@ const app = {
         };
         container.appendChild(board);
     },
+    /* pour initialiser la partie */
     init: () => {
         app.drawBoard(document.getElementById("gameContainer"));
-        // app.gameState.playerList = app.Player.list;
         const sessionInfo = document.getElementsByTagName("body")[0].id.split("__");
         app.gameState.sessionName = sessionInfo[0];
         const myName = sessionInfo[1];
@@ -210,3 +180,27 @@ document.addEventListener("DOMContentLoaded", app.init);
                 // console.log(`reqJSON : ${reqJSON}`);
                 // req.open("GET", `/penteonline/${session}/?json=${reqJSON}`, false);
                 // req.send();
+
+
+                // Player: class {
+                //     static list = [];
+                //     static dictionary = {};
+                //     name = "";
+                //     id = "";
+                //     ip = "";
+                //     index = -1;//sa place dans Player.list
+                //     pairs = 0;
+                //     move = [];//tuple
+                //     /*         score=0; */
+                //     color = "";
+                //     constructor(socketId, color) {
+                //         this.name = "";
+                //         this.id = socketId;
+                //         this.color = color;
+                //         app.Player.dictionary[this.id] = this;
+                //         // console.log(app.Player.dictionary);
+                //         this.index = app.Player.list.length;//attention à l’ordre des lignes.
+                //         app.Player.list.push(this);
+            
+                //     }
+                // },

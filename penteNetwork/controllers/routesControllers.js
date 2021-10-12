@@ -31,6 +31,11 @@ module.exports = {
         TODO commenter plus.
         TODO créer un middleware pour créer session si elle n’existe pas puis next : créer le joueur 
         */
+       console.log(typeof req.query);
+       if(Object.keys(req.query).length===0){
+           res.status(200).send(viewr.render("views/index.viewr"));
+return;
+       };
 
         /* on demande à l’utilisateur de créer une session ou de rejoindre une partie */
         if (typeof req.query.session !== "undefined" && req.query.session !== ""
