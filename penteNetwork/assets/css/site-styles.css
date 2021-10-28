@@ -1,0 +1,88 @@
+/* Accueil */
+@import url('https://fonts.googleapis.com/css2?family=Festive&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Festive&family=Raleway:wght@200;400;800&display=swap');
+
+body{
+    margin: 0; 
+    font-family: "Raleway",sans-serif;
+    --header-height:6rem;
+    --footer-height:5rem;
+}
+button,input{
+    border: none;
+    margin: 16px 0;
+}
+.wrapper{
+    width: 100%;
+    /* min-height: 100vh; */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.header{
+    height: var(--header-height);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.header__separator{
+    justify-self: flex-end;
+    height: 1px;
+    width: 100%;
+    background-image: linear-gradient(90deg, #FFFDD800 10%,rgb(76, 43, 226) 50%,#FFFDD800 90%);
+}
+main{
+    min-height:calc(100vh - var(--header-height) - var(--footer-height));
+}
+.main__formwrapper{
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.form_startgame input{
+background-color: whitesmoke;
+padding: .5rem;
+margin: 8px 0 16px 0;
+}
+.form_startgame label{
+   font-size: .8rem; 
+   font-weight: 400;
+}
+.index_button{
+    background-color: rgb(76, 43, 226);
+    padding: 1rem;
+    color: white;
+}
+.title{
+    text-align: center;
+    font-size: 2.2rem;
+    font-family: "Festive",serif;
+    margin: 0;
+}
+.title__baseline{
+    /* font-style: italic; */
+    font-size: .8em;
+    font-weight: 200;
+    font-family: "Raleway";
+}
+.footer{
+    width: 100%;
+    height: var(--footer-height);
+    text-align: center;
+    background-color: gray;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.form_startgame__card{
+    display: flex;
+flex-direction: column;
+margin: 16px;
+padding: 2rem;
+box-shadow: 10px 10px 10px #00000010;
+}

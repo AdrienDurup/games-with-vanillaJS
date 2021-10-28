@@ -14,8 +14,8 @@ socket.on("initRes", (e) => {
         app.gameState = sessionData.logic.state;
         console.log("active", app.gameState.activePlayer.name);
         app.me = sessionData.playerDict[myName];
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        console.error(err);
     }
 
 })
@@ -51,10 +51,7 @@ const app = {
         author: "Gary Gabrel",
         size: 19,
     },
-    /* 
-    TODO faire un gameState "Event driven" avec système de snapshot et comparaison "onChange"
-    TODO pour cela faire un singleton avec accesseurs
-      */
+
     gameState: {//se récupère régulièrement depuis le serveur
         sessionName: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
@@ -157,7 +154,7 @@ const app = {
     /* pour initialiser la partie */
     init: () => {
         app.drawBoard(document.getElementById("gameContainer"));
-        const sessionInfo = document.getElementsByTagName("body")[0].id.split("__");
+        const sessionInfo = document.getElementsByClassName("uniquePenteWrapper")[0].id.split("__");
         app.gameState.sessionName = sessionInfo[0];
         const myName = sessionInfo[1];
         console.log(app.gameState.sessionName);

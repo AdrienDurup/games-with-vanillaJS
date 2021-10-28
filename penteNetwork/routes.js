@@ -10,6 +10,10 @@ const routeLogic=require("./controllers/routesControllers");
 router.use(xpr.static("assets"));
 router.use(routeLogic.log);
 router.get("/", routeLogic.root);
-router.get("/penteonline/:session/:name", routeLogic.session);
+// router.use(routeLogic.gameControl);
+router.get("/create",routeLogic.createGame);
+router.get("/join",routeLogic.joinGame);
+// router.get("/game/:name",routeLogic.gamePage);
+router.get("/game/:game/:name", routeLogic.session);
 
 module.exports=router;

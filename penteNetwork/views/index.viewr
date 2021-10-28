@@ -1,17 +1,7 @@
-${outerComponent("views/partials/pagebase")}
-<header>
-<h1 class="title">
-Pente Online
-</h1>
-</header>
-<main>
-<form id="startGame">
-<label name="new-session">Nouvelle Partie</label>
-<input type="text" id="new-session" name="new-session">
-<button>créer une partie</button>
-<button></button>
-</form>
+${wrapperSnippet("views/partials/pagebase")}
+<main class="main_gamelaunch">
+<div class="main__formwrapper">
+${snippet("views/partials/startCard1",start)}
+${snippet("views/partials/startCard1",join)}
+<div>
 </main>
-<footer>
-©Adrien Durup
-</footer>
