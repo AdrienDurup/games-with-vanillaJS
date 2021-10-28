@@ -107,8 +107,10 @@ const app = {
                 return;
             };
             /* si la cellule est vide, le coup est validé */
+            console.log("this",this,typeof this.value);
+            console.log(this.value === "");
             if (this.value === "") {
-                console.log(`clic by ${app.gameState.activePlayer.name}`);
+                console.log(`clic by ${app.gameState.activePlayer.name} : this.value = ${this.value}`);
                 app.gameState.lastMoveId = this.id;
                 app.gameState.activePlayer.move = this.coordinate;
                 console.log("handleCellPlay : last move :", app.gameState.lastMoveId);
@@ -119,6 +121,7 @@ const app = {
 
         /* Permet d’update la vue de la cellule */
         update = () => {
+            this.value=app.gameState.activePlayer.name;
             this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
             console.log(this.stoneContainer.classList);
             console.log("IMPLEMENTER");
