@@ -17,10 +17,19 @@
     flex-direction: column;
 }
 .board {
-margin: auto;
+margin: 0;
     width: calc(var(--cellSize)*var(--board-size));
-    border: solid 3rem black;
+    border: solid .5rem rgb(48, 77, 109) ;
     background-color:rgb(255, 230, 147);
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5),-1px -1px 1px rgb(53, 110, 114);
+}
+.game_table{
+    background-color: rgb(34, 44, 75);
+    padding: 0 2rem 2rem 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items:center ;
+    justify-content: space-evenly;
 }
 
 .board__row {
@@ -28,7 +37,14 @@ margin: auto;
     align-items: center;
     justify-content: center;
 }
-
+.player_board{
+padding: .5rem 1rem;
+background-color: cadetblue;
+flex-basis:30%;
+margin: 1rem 0;
+box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.5);
+border-radius: 16px;
+}
 .board__cell {
     position: relative;
     display:flex ;

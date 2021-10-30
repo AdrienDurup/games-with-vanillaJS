@@ -107,7 +107,7 @@ const app = {
                 return;
             };
             /* si la cellule est vide, le coup est validé */
-            console.log("this",this,typeof this.value);
+            console.log("this", this, typeof this.value);
             console.log(this.value === "");
             if (this.value === "") {
                 console.log(`clic by ${app.gameState.activePlayer.name} : this.value = ${this.value}`);
@@ -121,7 +121,7 @@ const app = {
 
         /* Permet d’update la vue de la cellule */
         update = () => {
-            this.value=app.gameState.activePlayer.name;
+            this.value = app.gameState.activePlayer.name;
             this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
             console.log(this.stoneContainer.classList);
             console.log("IMPLEMENTER");
@@ -141,6 +141,18 @@ const app = {
         container.appendChild(row);
         return row;
     },
+    drawPlayerBoard: (container, userRole) => {
+        const pboard = document.createElement("div");
+        pboard.id = userRole;
+        pboard.className = "player_board";
+        const nameDisplay = document.createElement("span");
+        nameDisplay.textContent = userRole;
+        const pairsDispay = document.createElement("span");
+       // app.playerBoards.push;
+        pboard.appendChild(nameDisplay);
+        pboard.appendChild(pairsDispay);
+        container.appendChild(pboard);
+    },
     /* Pour créer le plateau dans la vue */
     drawBoard: (container) => {
         const board = document.createElement("div");
@@ -154,9 +166,19 @@ const app = {
         };
         container.appendChild(board);
     },
+    /* Pour créer la table dans la vue, qui contient des informations et le plateau */
+    drawTable: (container) => {
+        const table = document.createElement("div");
+        table.id = "gameTable";
+        table.className = "game_table";
+        app.drawPlayerBoard(table, "owner");
+        app.drawPlayerBoard(table, "guest");
+        app.drawBoard(table);
+        container.appendChild(table);
+    },
     /* pour initialiser la partie */
     init: () => {
-        app.drawBoard(document.getElementById("gameContainer"));
+        app.drawTable(document.getElementById("gameContainer"));
         const sessionInfo = document.getElementsByClassName("uniquePenteWrapper")[0].id.split("__");
         app.gameState.sessionName = sessionInfo[0];
         const myName = sessionInfo[1];
@@ -201,6 +223,6 @@ document.addEventListener("DOMContentLoaded", app.init);
                 //         // console.log(app.Player.dictionary);
                 //         this.index = app.Player.list.length;//attention à l’ordre des lignes.
                 //         app.Player.list.push(this);
-            
+
                 //     }
                 // },
