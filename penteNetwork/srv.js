@@ -90,6 +90,7 @@ io.on("connection", (socket) => {
         // console.log("currentSession",Session.list);
         /* Pour l’initialisation on envoie que vers le socket appelant */
         socket.emit("initRes", JSON.stringify({ sessionData: Session.list[sessionName], ip: socket.handshake.address, myName}));
+        io.to(sessionName).emit("updatePlayerBoard",JSON.stringify({ gameState: game.state }));
         //  io.to(sessionName).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
         console.log(`${socket.id} joining game ${sessionName}...`);
     });

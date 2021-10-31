@@ -19,7 +19,7 @@ socket.on("initRes", (e) => {
             if (key === "owner") {
                 console.log(key);
                 app.PlayerBoard.dict[key].setPlayerName(sessionData.owner.name);
-            } else if (key === "guest" && JSON.stringify(sessionData.guest)!=='{}') {//on check si un guest est créé dans la session
+            } else if (key === "guest" && JSON.stringify(sessionData.guest) !== '{}') {//on check si un guest est créé dans la session
                 app.PlayerBoard.dict[key].setPlayerName(sessionData.guest.name);
             };
         };
@@ -28,6 +28,19 @@ socket.on("initRes", (e) => {
     }
 
 })
+socket.on("updatePlayerBoard", (e) => {
+    try {
+        const res = JSON.parse(e);
+        const sessionData = res.sessionData;
+        app.session = sessionData;
+        app.gameState = sessionData.logic.state;
+
+        /* Faire un static PlayerBoard.update qui gère son io */
+
+    } catch (err) {
+        console.error(err);
+    }
+});
 
 socket.on("moveResponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
@@ -178,7 +191,7 @@ const app = {
         // app.playerBoards.push;
         pboard.appendChild(nameDisplay);
         pboard.appendChild(pairsDispay);
-        console.log("isAfter",isAfter);
+        console.log("isAfter", isAfter);
         if (isAfter)
             container.appendChild(pboard);
         else {
