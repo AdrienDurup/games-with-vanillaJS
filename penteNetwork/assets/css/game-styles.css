@@ -44,6 +44,8 @@ flex-basis:30%;
 margin: 1rem 0;
 box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.5);
 border-radius: 16px;
+color: white;
+font-weight: 500;
 }
 .board__cell {
     position: relative;

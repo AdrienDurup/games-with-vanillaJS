@@ -14,6 +14,15 @@ socket.on("initRes", (e) => {
         app.gameState = sessionData.logic.state;
         console.log("active", app.gameState.activePlayer.name);
         app.me = sessionData.playerDict[myName];
+        /* we fill player boards with name*/
+        for (key in app.PlayerBoard.dict) {
+            if (key === "owner") {
+                console.log(key);
+                app.PlayerBoard.dict[key].setPlayerName(sessionData.owner.name);
+            } else if (key === "guest" && JSON.stringify(sessionData.guest)!=='{}') {//on check si un guest est créé dans la session
+                app.PlayerBoard.dict[key].setPlayerName(sessionData.guest.name);
+            };
+        };
     } catch (err) {
         console.error(err);
     }
@@ -128,6 +137,24 @@ const app = {
         }
 
     },
+    PlayerBoard: class {
+        static dict = {};
+        id;
+        playerName;
+        role;
+        constructor(container, userRole, isAfter = true) {
+            this.role = userRole;
+            this.playerName = userRole;//temporary
+            /* DOM definition */
+            this.DOM = app.drawPlayerBoard(container, userRole, isAfter);
+            this.id = this.DOM.id;
+            app.PlayerBoard.dict[userRole] = this;
+        }
+        setPlayerName(playerName) {
+            this.playerName = playerName;//dans le model
+            this.DOM.textContent = playerName;//dans la vue
+        }
+    },
     /* Pour supprimer une paire de pierres de la vue */
     deleteStone: (coordinate) => {
         const id = `cell_${coordinate[0]}_${coordinate[1]}`;
@@ -141,17 +168,23 @@ const app = {
         container.appendChild(row);
         return row;
     },
-    drawPlayerBoard: (container, userRole) => {
+    drawPlayerBoard: (container, playerRole, isAfter) => {
         const pboard = document.createElement("div");
-        pboard.id = userRole;
+        pboard.id = playerRole;
         pboard.className = "player_board";
         const nameDisplay = document.createElement("span");
-        nameDisplay.textContent = userRole;
+        nameDisplay.textContent = playerRole;
         const pairsDispay = document.createElement("span");
-       // app.playerBoards.push;
+        // app.playerBoards.push;
         pboard.appendChild(nameDisplay);
         pboard.appendChild(pairsDispay);
-        container.appendChild(pboard);
+        console.log("isAfter",isAfter);
+        if (isAfter)
+            container.appendChild(pboard);
+        else {
+            container.prepend(pboard);
+        }
+        return pboard;
     },
     /* Pour créer le plateau dans la vue */
     drawBoard: (container) => {
@@ -171,8 +204,8 @@ const app = {
         const table = document.createElement("div");
         table.id = "gameTable";
         table.className = "game_table";
-        app.drawPlayerBoard(table, "owner");
-        app.drawPlayerBoard(table, "guest");
+        new app.PlayerBoard(table, "owner");
+        new app.PlayerBoard(table, "guest");
         app.drawBoard(table);
         container.appendChild(table);
     },
