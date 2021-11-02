@@ -30,12 +30,8 @@ socket.on("initRes", (e) => {
 })
 socket.on("updatePlayerBoard", (e) => {
     try {
-        const res = JSON.parse(e);
-        const sessionData = res.sessionData;
-        app.session = sessionData;
-        app.gameState = sessionData.logic.state;
-
-        /* Faire un static PlayerBoard.update qui gère son io */
+        app.session=JSON.parse(e).sessionData;
+        app.PlayerBoard.updateAll(app.session);
 
     } catch (err) {
         console.error(err);
@@ -55,6 +51,8 @@ socket.on("moveResponse", (e) => {
             app.deleteStone(el);
         };
     };
+    /* On met à jour la vue des player boards */
+    app.PlayerBoard.updateAll(app.gameState);
     /* on change de joueur actif. déclenché une fois du coté du joueur actif */
     if (app.gameState.activePlayer.name === app.me.name) {
         socket.emit("changePlayer", JSON.stringify({ sessionName: app.gameState.sessionName }));
@@ -146,7 +144,6 @@ const app = {
             this.value = app.gameState.activePlayer.name;
             this.stoneContainer.className = `stone stone--j${app.gameState.activePlayer.index}`;
             console.log(this.stoneContainer.classList);
-            console.log("IMPLEMENTER");
         }
 
     },
@@ -162,10 +159,65 @@ const app = {
             this.DOM = app.drawPlayerBoard(container, userRole, isAfter);
             this.id = this.DOM.id;
             app.PlayerBoard.dict[userRole] = this;
+            //console.log("PlayBoard dict push",app.PlayerBoard.dict);
         }
         setPlayerName(playerName) {
-            this.playerName = playerName;//dans le model
-            this.DOM.textContent = playerName;//dans la vue
+            if (this.playerName !== playerName) {
+                this.playerName = playerName;//dans le model
+                this.DOM.childNodes[0].textContent = playerName;//dans la vue. childNodes[0] designe le conteneur du nom.
+            };
+        }
+        drawPairsView(player) {
+            const pairs = player.pairs;
+            if (pairs > 0) {
+             console.log("NODES",this.DOM);
+                let pairsContainer = this.DOM.childNodes[1];//la partie du player board qui contient les paires
+                const nbToAdd = pairs-pairsContainer.childNodes.length ;//pairsContainer.childNodes.length pour compter
+                console.log(pairsContainer,nbToAdd);
+                if (nbToAdd > 0) {
+                    /* on définit la vue d’une paire */
+                    function pairDOM(){
+                        const pairDOM = document.createElement("div");
+                        pairDOM.className = "stone_pair_container";
+                        const pbStone = document.createElement("div");
+                        pbStone.className = `player_board__stone stone--position1
+                        stone--j${player.index}`;
+                        const pbStone2 = document.createElement("div");
+                        pbStone2.className = `player_board__stone stone--position2
+                         stone--j${player.index}`;
+                        pairDOM.appendChild(pbStone);
+                        pairDOM.appendChild(pbStone2);
+                        return pairDOM;
+                    }
+
+                    /* on rajoute dans l’affichage le nombre paires manquantes */
+                    for (let i = 0; i < nbToAdd; i++) {
+                        console.log(i);
+                        pairsContainer.appendChild(pairDOM());
+                    };
+                };
+            };
+        }
+        updatePairs() {
+            const pname = this.playerName;
+            const player = state.playerDictionary[pname];
+            /* mise à jour des paires */
+            this.drawPairsView(player);
+        }
+        static updateAll(session) {
+            let index = 0;
+            console.log("updating");
+            for (const el in this.dict) {
+                const player = session.playerList[index];
+                console.log(`Player is ${player}`);
+                if(player){
+                /* mise à jour du nom */
+                this.dict[el].setPlayerName(player.name);
+                /* mise à jour des paires */
+                this.dict[el].drawPairsView(player);
+                index++;
+            };
+            };
         }
     },
     /* Pour supprimer une paire de pierres de la vue */
@@ -186,11 +238,14 @@ const app = {
         pboard.id = playerRole;
         pboard.className = "player_board";
         const nameDisplay = document.createElement("span");
+        nameDisplay.className="player_board__name";
         nameDisplay.textContent = playerRole;
-        const pairsDispay = document.createElement("span");
-        // app.playerBoards.push;
+        const pairsDisplay = document.createElement("span");
+        pairsDisplay.className="pairs_container";
         pboard.appendChild(nameDisplay);
-        pboard.appendChild(pairsDispay);
+        pboard.appendChild(pairsDisplay);
+        //console.log(pairsDisplay,pboard);
+        console.log(pboard);
         console.log("isAfter", isAfter);
         if (isAfter)
             container.appendChild(pboard);

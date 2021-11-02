@@ -46,6 +46,42 @@ box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.5);
 border-radius: 16px;
 color: white;
 font-weight: 500;
+display: flex;
+align-items: stretch;
+}
+.player_board__name{
+margin-right:1rem;
+flex-grow: 1 ;
+}
+.pairs_container{
+display: flex;
+align-items: stretch;
+--pairWidthPlusMargin:2rem;
+width:calc(var(--pairWidthPlusMargin * 5));
+justify-content: flex-end;
+}
+.stone_pair_container{
+    position: relative;
+    margin: 0 0.1rem;
+    width: 1.8rem;
+    /* height: 100%; */
+}
+.stone--position1{
+position: absolute;
+left:0;
+bottom:0;
+}
+.stone--position2{
+    position: absolute;
+    top:0;
+    right:0;
+}
+.player_board__stone{
+    height:80%;
+    width: 1.2rem;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 .board__cell {
     position: relative;
@@ -89,6 +125,7 @@ width: 100%;
     height:.1rem;
     top:var(--line);
 }
+
 .stone{
     position: absolute;
     height: 100%;

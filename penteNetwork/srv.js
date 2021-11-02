@@ -90,7 +90,9 @@ io.on("connection", (socket) => {
         // console.log("currentSession",Session.list);
         /* Pour l’initialisation on envoie que vers le socket appelant */
         socket.emit("initRes", JSON.stringify({ sessionData: Session.list[sessionName], ip: socket.handshake.address, myName}));
-        io.to(sessionName).emit("updatePlayerBoard",JSON.stringify({ gameState: game.state }));
+       // Mais on envoie partout la mise à jour des players boards
+        io.to(sessionName).emit("updatePlayerBoard",JSON.stringify({sessionData:Session.list[sessionName]}));
+        // io.to(sessionName).emit("updatePlayerBoard",JSON.stringify({ gameState }));
         //  io.to(sessionName).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
         console.log(`${socket.id} joining game ${sessionName}...`);
     });
