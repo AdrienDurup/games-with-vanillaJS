@@ -1,10 +1,11 @@
 const xpr = require("express");
+require("dotenv").config();;
 xpr.locals = {};
-const { Session } = require("./model/model");
-const routes = require("./routes");
-const socketioLogic = require("./controllers/socketioControllers");
+const { Session } = require("./app/controllers/model/model");
+const routes = require("./app/routes");
+const socketioLogic = require("./app/controllers/socketioControllers");
 
-const wbs_port = "4001";
+const wbs_port = process.env.PORT;
 // const host = `http://localhost:${wbs_port}`;
 
 const srv = xpr();
@@ -17,8 +18,8 @@ see https://socket.io/get-started/chat
 */
 const http = require("http");
 const ioserver = http.createServer(srv);
-const { Server } = require("socket.io");
-const { GameLogic } = require("./gameLogic");
+const { Server, Socket } = require("socket.io");
+const { GameLogic } = require("./app/controllers/model/gameLogic");
 // const {GameLogic} = require("./gameLogic");
 const io = new Server(ioserver);
 xpr.locals.io = io;
@@ -37,39 +38,39 @@ ioserver.listen(wbs_port, () => {
 /* Défactorisation pour test */
 io.on("connection", (socket) => {
     /*
-     TODO Ajouter feature de rejoin avec update ip et socket si besoin */
+     TODO Ajouter feature de rejoin*/
     console.log(`${socket.id} is connected.`);
     socket.on("moverequest", (e) => {
         const state = JSON.parse(e).gameState;
-        const sessionName=state.sessionName;
+        const sessionName = state.sessionName;
         // const session=Session.list[state.sessionName];
         // console.log("GameLogic",GameLogic.dict);
-        const game=GameLogic.dict[sessionName];
-        game.state.activePlayer.move=state.activePlayer.move;
-        game.state.lastMoveId=state.lastMoveId;
+        const game = GameLogic.dict[sessionName];
+        game.state.activePlayer.move = state.activePlayer.move;
+        game.state.lastMoveId = state.lastMoveId;
         // console.log(game);
-        const lastMove=state.activePlayer.move;
+        const lastMove = state.activePlayer.move;
         // console.log("lastMove : ",lastMove);
-        game.state.moveMap[lastMove[0]][lastMove[1]]=state.activePlayer.name;
+        game.state.moveMap[lastMove[0]][lastMove[1]] = state.activePlayer.name;
         // console.log(game.state.activePlayer.move);
         // console.log(game.state);
-         GameLogic.checkVictory(game.state);
-         if(game.state.victory!==""){
-             console.log(`Victory for ${game.state.activePlayer.name}`);
-         };
-         //GameLogic.changePlayer(game);
-         
-        console.log("game.state.toDelete",game.state.toDelete);
+        GameLogic.checkVictory(game.state);
+        if (game.state.victory !== "") {
+            console.log(`Victory for ${game.state.activePlayer.name}`);
+        };
+        //GameLogic.changePlayer(game);
+
+        console.log("game.state.toDelete", game.state.toDelete);
         io.to(sessionName).emit("moveResponse", JSON.stringify({ gameState: game.state }));
     });
-    
+
     socket.on("changePlayer", (e) => {
         /* 
         TODO rapatrier gameState coté server */
-         const sessionName = JSON.parse(e).sessionName;
+        const sessionName = JSON.parse(e).sessionName;
         // const session = Session.list[sessionName];
         /* changement de joueur */
-        const game=GameLogic.dict[sessionName];
+        const game = GameLogic.dict[sessionName];
         GameLogic.changePlayer(game);
         io.to(sessionName).emit("changePlayerResponse", JSON.stringify({ gameState: game.state }));
     });
@@ -84,21 +85,44 @@ io.on("connection", (socket) => {
         const gameState = obj.gameState;
         const myName = obj.myName;
         const sessionName = gameState.sessionName;
-        const gameLogic=GameLogic.dict[sessionName];
+        const gameLogic = GameLogic.dict[sessionName];
         console.log(`initSession : ${sessionName}`);
         socket.join(sessionName);
+        /* on ajoute le socket au connection status à chaque refresh, chargement de partie */
+        Session.list[sessionName].connectionStatus.push(socket.id);
         // console.log("currentSession",Session.list);
         /* Pour l’initialisation on envoie que vers le socket appelant */
-        socket.emit("initRes", JSON.stringify({ sessionData: Session.list[sessionName], ip: socket.handshake.address, myName}));
-       // Mais on envoie partout la mise à jour des players boards
-        io.to(sessionName).emit("updatePlayerBoard",JSON.stringify({sessionData:Session.list[sessionName]}));
+        socket.emit("initRes", JSON.stringify({ sessionData: Session.list[sessionName], ip: socket.handshake.address, myName }));
+        // Mais on envoie partout la mise à jour des players boards
+        io.to(sessionName).emit("updatePlayerBoard", JSON.stringify({ sessionData: Session.list[sessionName] }));
         // io.to(sessionName).emit("updatePlayerBoard",JSON.stringify({ gameState }));
         //  io.to(sessionName).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
         console.log(`${socket.id} joining game ${sessionName}...`);
     });
+
     socket.on("disconnect", () => {
-        console.log("User disconnected.");
-    });
+        // console.log("disco",socket);
+        const sessionNameList = Object.keys(Session.list);
+        console.log(`sessions running : ${sessionNameList}`);
+        for (key in Session.list) {
+            /* dans chaque session on cherche si la propriété connectionStatus comporte le socket courant */
+            const session = Session.list[key];
+            const hasSocket = session.connectionStatus.find(el => el === socket.id);
+            /* si le socket est trouvé on l’efface */
+            if (hasSocket) {
+                console.log(session.connectionStatus);
+                session.connectionStatus = session.connectionStatus.filter(el => el !== socket.id);
+                console.log(session.connectionStatus.length);
+                /* si connectionStatus est vide on détruit la session */
+                if (session.connectionStatus.length === 0) {
+                    delete Session.list[key];
+                    const nbRemaining = Object.keys(Session.list).length;
+                    console.log(`session deleted : ${nbRemaining} remaining sessions.`);
+                };
+            };
+        };
+    console.log("User disconnected.");
+});
 
 
 });

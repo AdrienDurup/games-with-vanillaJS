@@ -1,16 +1,13 @@
 const xpr = require("express");
-const { Player, GameData, Session } = require("../model/model");
-const { GameLogic } = require("../gameLogic");
-const wbs_port = "4001";
-const host = `http://localhost:${wbs_port}`;
-// test = new Player("uop", "uei");
-// console.log(test);
+const { Player, GameData, Session } = require("./model/model");
+const { GameLogic } = require("./model/gameLogic");
+
 let sessions = {};
 xpr.locals.sessions = sessions;
 
 
 /* view engine */
-const { ViewR } = require("../my_modules/viewr");
+const { ViewR } = require("../../my_modules/viewr");
 
 /* Routes logic */
 module.exports = {
@@ -65,26 +62,39 @@ module.exports = {
             res.status(403).send("Error 403 : denied.");
         };
     },
+    /* 
+    TODO tester */
     joinGame: (req, res) => {
-        if (req.query.game && req.query.game !== ""
-            && req.query.user && req.query.user !== ""){
+        try {
+
+            if (!req.query.game && !req.query.user) //si les variables de la requete sont undefined
+                throw "Informations insuffisantes pour créer une partie.";
+
             const session = Session.list[req.query.game];
-            if (session) {//si la session existe on crée le joueur invité et on rejoint
-                const guest = new Player(req.query.user, req.ip);
-                guest.color = "yellow";
-                session.addPlayer(guest, "guest");
-                console.log(session.guest, session.playerDict[guest.name]);
-                res.redirect(`/game/${session.name}/${encodeURI(session.guest.name)}`);
+            if (!session)// si la session n’existe pas
+                throw "Partie inexistante";
+
+            /* Si les deux joueurs existent déjà mais que l’identité par ip ne correspond pas */
+            if ((session.guest && session.guest.ip !== req.ip)
+                && (session.owner && session.owner.ip !== req.ip))
+                throw "Vous n’êtes pas un des joueurs enregistrés pour cette partie."
+            
+                /* Si l’invité n’est pas créé, on le crée */
+                if (!session.guest) {
+                    const guest = new Player(req.query.user, req.ip);
+                    guest.color = "yellow";
+                    session.addPlayer(guest, "guest");
+                    console.log(session.guest, session.playerDict[guest.name]);
+                };
                 /* si les données sont fournies pour la création d’un guest, on rejoint la partie */
-            } else {
-                // Sinon on rejette l’accès 
-                res.status(403).send("Error 403 : denied.");
+                /* Si l’invité existe et que l’identité est vérifiée par l’ip on rejoint la partie */
+                res.redirect(`/game/${session.name}/${encodeURI(session.guest.name)}`);
+                
+
+            }catch (e) {
+                res.status(403).send(`Error 403 : denied. ${e}`);
             };
-        } else {
-            // Sinon on rejette l’accès
-            res.status(403).send("Error 403 : denied.");
-        };
-    },
+        },
         /* "/game/:session" */
         session: (req, res) => {
             // console.log(`Route 1`); console.log(`MOVE ? ${req.query.move}`);
@@ -99,7 +109,7 @@ module.exports = {
 
             /* dessiner le board */
             res.append("Content-Type", "text/html;charset=utf-8");
-            res.status(200).send(ViewR.renderSync("views/game", { test: `Créée par ${session.owner.name}`, session, ip: req.ip, name: req.params.name, host: host }));
+            res.status(200).send(ViewR.renderSync("views/game", { test: `Créée par ${session.owner.name}`, session, ip: req.ip, name: req.params.name }));
         },
 
 }

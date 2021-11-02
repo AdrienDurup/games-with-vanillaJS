@@ -285,11 +285,15 @@ const app = {
         const myName = sessionInfo[1];
         console.log(app.gameState.sessionName);
         socket.emit("initSession", JSON.stringify({ gameState: app.gameState, myName }));
-    }
+    },
+    // popConnectionStatus:()=>{
+    //     console.log("popConnectionStatus ?");
+    //     socket.emit("popConnectionStatus",{sessionName:app.session.name});
+    // }
 }
 document.addEventListener("DOMContentLoaded", app.init);
 
-
+// document.addEventListener("visibilitychange", app.popConnectionStatus);
 /* Créer ici une requête html */
                 // const req = new XMLHttpRequest();
 

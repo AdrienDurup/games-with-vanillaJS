@@ -38,17 +38,19 @@ class Session {
     index;
     playerList = [];
     playerDict = {};
-    owner;
-    guest = {};
+    owner;//le créateur de la partie
+    guest = {};//son adversaire
     visitors=[];
     logic={};
+    connectionStatus=[];//pour checker si les 2 joueurs sont connectés
     constructor(sessionName, owner,gameLogic) {
         this.name = sessionName;
-        this.owner = owner;
+        // this.owner = owner;
         this.index= Session.nextIndex++;
         console.log(this.index,Session.nextIndex);
-        this.playerList = [owner];
-        this.playerDict[owner.name] = owner;
+        // this.playerList = [owner];
+        // this.playerDict[owner.name] = owner;
+        this.addPlayer(owner);
         gameLogic.state.sessionName=this.name;
         gameLogic.state.playerList=this.playerList;
         this.logic=gameLogic;
