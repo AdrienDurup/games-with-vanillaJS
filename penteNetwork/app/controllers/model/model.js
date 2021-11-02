@@ -38,8 +38,8 @@ class Session {
     index;
     playerList = [];
     playerDict = {};
-    owner;//le créateur de la partie
-    guest = {};//son adversaire
+    owner;// {} le créateur de la partie
+    guest ;// {} son adversaire
     visitors=[];
     logic={};
     connectionStatus=[];//pour checker si les 2 joueurs sont connectés

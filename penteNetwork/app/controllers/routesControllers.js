@@ -31,7 +31,7 @@ module.exports = {
                         action: "/create"
                     },
                     join: {
-                        actionTitle: "Rejoindre Partie",
+                        actionTitle: "Rejoindre une partie",
                         userName: "Pseudo",
                         indexButton: "Rejoindre",
                         action: "/join"
@@ -67,19 +67,24 @@ module.exports = {
     joinGame: (req, res) => {
         try {
 
-            if (!req.query.game && !req.query.user) //si les variables de la requete sont undefined
+            if (!req.query.game || !req.query.user) //si les variables de la requete sont undefined
                 throw "Informations insuffisantes pour créer une partie.";
 
+                
             const session = Session.list[req.query.game];
+            //console.log(!session);
             if (!session)// si la session n’existe pas
                 throw "Partie inexistante";
 
             /* Si les deux joueurs existent déjà mais que l’identité par ip ne correspond pas */
-            if ((session.guest && session.guest.ip !== req.ip)
-                && (session.owner && session.owner.ip !== req.ip))
+            //&& (session.owner && session.owner.ip !== req.ip));
+            console.log(req.ip,session.guest,session.owner);
+            if ((session.guest && (session.guest.ip !== req.ip || session.guest.name !== req.query.user))
+                && (session.owner && (session.owner.ip !== req.ip || session.owner.name !== req.query.user)))
                 throw "Vous n’êtes pas un des joueurs enregistrés pour cette partie."
             
                 /* Si l’invité n’est pas créé, on le crée */
+                console.log("SESSION.GUEST",typeof session.guest);
                 if (!session.guest) {
                     const guest = new Player(req.query.user, req.ip);
                     guest.color = "yellow";
@@ -100,7 +105,7 @@ module.exports = {
             // console.log(`Route 1`); console.log(`MOVE ? ${req.query.move}`);
             // console.log(req.ip, sessions[sessionName].gameData.activePlayer);
             const session = Session.list[req.params.game];
-            console.log("session logic => ", session.logic.state);
+            //console.log("session logic => ", session.logic.state);
             // console.log("route session",Session.list);
             if (typeof session === "undefined" ||
                 typeof session.owner === "undefined") {

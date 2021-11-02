@@ -14,15 +14,7 @@ socket.on("initRes", (e) => {
         app.gameState = sessionData.logic.state;
         console.log("active", app.gameState.activePlayer.name);
         app.me = sessionData.playerDict[myName];
-        /* we fill player boards with name*/
-        for (key in app.PlayerBoard.dict) {
-            if (key === "owner") {
-                console.log(key);
-                app.PlayerBoard.dict[key].setPlayerName(sessionData.owner.name);
-            } else if (key === "guest" && JSON.stringify(sessionData.guest) !== '{}') {//on check si un guest est créé dans la session
-                app.PlayerBoard.dict[key].setPlayerName(sessionData.guest.name);
-            };
-        };
+        /* player boards are filled by a separate io.emit from server, emitting "updatePlayerBoard"  */
     } catch (err) {
         console.error(err);
     }
@@ -30,7 +22,7 @@ socket.on("initRes", (e) => {
 })
 socket.on("updatePlayerBoard", (e) => {
     try {
-        app.session=JSON.parse(e).sessionData;
+        app.session = JSON.parse(e).sessionData;
         app.PlayerBoard.updateAll(app.session);
 
     } catch (err) {
@@ -170,13 +162,13 @@ const app = {
         drawPairsView(player) {
             const pairs = player.pairs;
             if (pairs > 0) {
-             console.log("NODES",this.DOM);
+                console.log("NODES", this.DOM);
                 let pairsContainer = this.DOM.childNodes[1];//la partie du player board qui contient les paires
-                const nbToAdd = pairs-pairsContainer.childNodes.length ;//pairsContainer.childNodes.length pour compter
-                console.log(pairsContainer,nbToAdd);
+                const nbToAdd = pairs - pairsContainer.childNodes.length;//pairsContainer.childNodes.length pour compter
+                console.log(pairsContainer, nbToAdd);
                 if (nbToAdd > 0) {
                     /* on définit la vue d’une paire */
-                    function pairDOM(){
+                    function pairDOM() {
                         const pairDOM = document.createElement("div");
                         pairDOM.className = "stone_pair_container";
                         const pbStone = document.createElement("div");
@@ -210,13 +202,13 @@ const app = {
             for (const el in this.dict) {
                 const player = session.playerList[index];
                 console.log(`Player is ${player}`);
-                if(player){
-                /* mise à jour du nom */
-                this.dict[el].setPlayerName(player.name);
-                /* mise à jour des paires */
-                this.dict[el].drawPairsView(player);
-                index++;
-            };
+                if (player) {
+                    /* mise à jour du nom */
+                    this.dict[el].setPlayerName(player.name);
+                    /* mise à jour des paires */
+                    this.dict[el].drawPairsView(player);
+                    index++;
+                };
             };
         }
     },
@@ -238,10 +230,10 @@ const app = {
         pboard.id = playerRole;
         pboard.className = "player_board";
         const nameDisplay = document.createElement("span");
-        nameDisplay.className="player_board__name";
+        nameDisplay.className = "player_board__name";
         nameDisplay.textContent = playerRole;
         const pairsDisplay = document.createElement("span");
-        pairsDisplay.className="pairs_container";
+        pairsDisplay.className = "pairs_container";
         pboard.appendChild(nameDisplay);
         pboard.appendChild(pairsDisplay);
         //console.log(pairsDisplay,pboard);
