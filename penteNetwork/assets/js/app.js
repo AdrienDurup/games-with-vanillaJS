@@ -50,7 +50,6 @@ socket.on("moveResponse", (e) => {
     app.PlayerBoard.updateAll(app.gameState);
 
     /* On affiche la victoire si OK */
-    app.gameState.victory=app.gameState.activePlayer.name;
     console.log("victory Value",app.gameState.victory);
     if (app.gameState.victory) {
         app.drawVictory(app.gameState.victory);

@@ -9,8 +9,8 @@
 //     }
 //
 class Player {
-    static list = [];
-    static dictionary = {};
+    // static list = [];
+    // static dictionary = {};
     name = "";
     id = "";
     ip = "";
@@ -25,17 +25,17 @@ class Player {
         this.id = socketId;
         this.ip = ip;
         this.color = color;
-        Player.dictionary[this.id] = this;
+        //Player.dictionary[this.id] = this;
         // console.log(app.Player.dictionary);
-        this.index = Player.list.length;//attention à l’ordre des lignes.
-        Player.list.push(this);
+        //this.index = Player.list.length;//attention à l’ordre des lignes.
+        //Player.list.push(this);
     }
 }
 class Session {
     static list = {};//changer pour dict
     static nextIndex=0;
     name;
-    index;
+    // index;
     playerList = [];
     playerDict = {};
     owner;// {} le créateur de la partie
@@ -46,8 +46,8 @@ class Session {
     constructor(sessionName, owner,gameLogic) {
         this.name = sessionName;
         // this.owner = owner;
-        this.index= Session.nextIndex++;
-        console.log(this.index,Session.nextIndex);
+        // this.index= Session.nextIndex++;
+        // console.log(this.index,Session.nextIndex);
         // this.playerList = [owner];
         // this.playerDict[owner.name] = owner;
         this.addPlayer(owner);
@@ -64,6 +64,7 @@ class Session {
             console.log(label);
         this[label]=player;
         this.playerDict[player.name]=player;
+        player.index=this.playerList.length;//on définit l’index du joueur quand on l’ajoute à la session
         this.playerList.push(player);
         }else if(label==="visitor"){
             console.log(label);
