@@ -35,16 +35,27 @@ socket.on("moveResponse", (e) => {
     console.log(`STOUT`, app.gameState);
     const lastMoveCell = app.Cell.dictionary[app.gameState.lastMoveId];
     console.log(`current player is ${app.gameState.activePlayer.ip, app.gameState.activePlayer.name}`);
+
     /* on met à jour la vue de la dernière cellule jouée */
     lastMoveCell.update();
+
     /* on supprime des paires sur le tablier */
     if (app.gameState.toDelete.length > 0) {
         for (el of app.gameState.toDelete) {
             app.deleteStone(el);
         };
     };
+
     /* On met à jour la vue des player boards */
     app.PlayerBoard.updateAll(app.gameState);
+
+    /* On affiche la victoire si OK */
+    app.gameState.victory=app.gameState.activePlayer.name;
+    console.log("victory Value",app.gameState.victory);
+    if (app.gameState.victory) {
+        app.drawVictory(app.gameState.victory);
+    };
+
     /* on change de joueur actif. déclenché une fois du coté du joueur actif */
     if (app.gameState.activePlayer.name === app.me.name) {
         socket.emit("changePlayer", JSON.stringify({ sessionName: app.gameState.sessionName }));
@@ -72,8 +83,21 @@ const app = {
         lastMoveId: "",
     },
 
-    gameOver: () => {
-        console.log(`${app.gameState.activePlayer.id} a gagné !`);
+    drawVictory: (victoryVal) => {
+        console.log("app.drawVictory running");
+        app.gameState.activePlayer={};
+        const table = document.getElementById("gameTable");
+        const popup = document.createElement("div");
+        popup.className = "victory_card";
+        popup.textContent = `Victoire pour ${victoryVal}`;
+        const closeButt = document.createElement("button");
+        closeButt.textContent = "Ok";
+        closeButt.className = "victory_card__ok";
+        closeButt.addEventListener("click", (e) => {
+            table.removeChild(popup);
+        });
+        popup.appendChild(closeButt);
+        table.appendChild(popup);
     },
     Cell: class {
         static dictionary = {};

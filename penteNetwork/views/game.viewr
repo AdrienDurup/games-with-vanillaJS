@@ -1,6 +1,6 @@
 ${wrapperSnippet("views/partials/pagebase")}
 <div class="uniquePenteWrapper" id="${session.name}__${name}">
-<h2>partie : ${session.name}, ${test}</h2>
+<h2 class="game_info">partie : <strong>${session.name}</strong> | hôte : <strong>${owner}</strong></h2>
     <main class="game-container" id="gameContainer">
     </main>
   <!--  <script lang="javascript" src="${host}/js/socket.io.min.js"></script>-->

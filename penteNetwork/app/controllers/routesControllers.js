@@ -114,7 +114,7 @@ module.exports = {
 
             /* dessiner le board */
             res.append("Content-Type", "text/html;charset=utf-8");
-            res.status(200).send(ViewR.renderSync("views/game", { test: `Créée par ${session.owner.name}`, session, ip: req.ip, name: req.params.name }));
+            res.status(200).send(ViewR.renderSync("views/game", { owner:session.owner.name, session, ip: req.ip, name: req.params.name }));
         },
 
 }

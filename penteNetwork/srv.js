@@ -102,6 +102,8 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
         // console.log("disco",socket);
+        // console.log(Session);
+        // console.log(GameLogic);
         const sessionNameList = Object.keys(Session.list);
         console.log(`sessions running : ${sessionNameList}`);
         for (key in Session.list) {
@@ -116,6 +118,7 @@ io.on("connection", (socket) => {
                 /* si connectionStatus est vide on détruit la session */
                 if (session.connectionStatus.length === 0) {
                     delete Session.list[key];
+                    delete GameLogic.dict[key];
                     const nbRemaining = Object.keys(Session.list).length;
                     console.log(`session deleted : ${nbRemaining} remaining sessions.`);
                 };

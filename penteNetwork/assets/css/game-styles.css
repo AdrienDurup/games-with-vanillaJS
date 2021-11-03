@@ -16,49 +16,53 @@
     align-items: center;
     flex-direction: column;
 }
-.board {
-margin: 0;
-    width: calc(var(--cellSize)*var(--board-size));
-    border: solid .5rem rgb(48, 77, 109) ;
-    background-color:rgb(255, 230, 147);
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5),-1px -1px 1px rgb(53, 110, 114);
+.uniquePenteWrapper{
+width: 100%;
 }
 .game_table{
+    position: relative;
     background-color: rgb(34, 44, 75);
+    /* width:100%; */
     padding: 0 2rem 2rem 2rem;
     display: flex;
     flex-wrap: wrap;
     align-items:center ;
     justify-content: space-evenly;
 }
-
+.board {
+    margin: 0;
+    width: calc(var(--cellSize)*var(--board-size));
+    border: solid .5rem rgb(48, 77, 109) ;
+    background-color:rgb(255, 230, 147);
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5),-1px -1px 1px rgb(53, 110, 114);
+}
 .board__row {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .player_board{
-padding: .5rem 1rem;
-background-color: cadetblue;
-flex-basis:30%;
-margin: 1rem 0;
-box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.5);
-border-radius: 16px;
-color: white;
-font-weight: 500;
-display: flex;
-align-items: stretch;
+    padding: .5rem 1rem;
+    background-color: cadetblue;
+    flex-basis:30%;
+    margin: 1rem 0;
+    box-shadow: 0px 5px 7px rgba(0, 0, 0, 0.5);
+    border-radius: 16px;
+    color: white;
+    font-weight: 500;
+    display: flex;
+    align-items: stretch;
 }
 .player_board__name{
-margin-right:1rem;
-flex-grow: 1 ;
+    margin-right:1rem;
+    flex-grow: 1 ;
 }
 .pairs_container{
-display: flex;
-align-items: stretch;
---pairWidthPlusMargin:2rem;
-width:calc(var(--pairWidthPlusMargin * 5));
-justify-content: flex-end;
+    display: flex;
+    align-items: stretch;
+    --pairWidthPlusMargin:2rem;
+    width:calc(var(--pairWidthPlusMargin * 5));
+    justify-content: flex-end;
 }
 .stone_pair_container{
     position: relative;
@@ -67,9 +71,9 @@ justify-content: flex-end;
     /* height: 100%; */
 }
 .stone--position1{
-position: absolute;
-left:0;
-bottom:0;
+    position: absolute;
+    left:0;
+    bottom:0;
 }
 .stone--position2{
     position: absolute;
@@ -110,11 +114,11 @@ bottom:0;
     outline: 5px 5px rgba(0, 0, 0, 0.4);
 }
 .cell__line{
-background-color: gray;
-position: absolute;
-height: 100%;
-width: 100%;
---line:calc(50% - .1rem/2);
+    background-color: gray;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    --line:calc(50% - .1rem/2);
 }
 
 .cell__line--v{
@@ -145,4 +149,52 @@ width: 100%;
 .hidden{
     display:none;
 }
+.victory_card{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height:6rem;
+    top:5rem;
+    right:auto;
+    left: auto;
+    background-color: rgba(255, 255, 255, 0.70);
+    text-align: center;
+    padding:2rem;
+    font-size: 2rem;
+    /* text-transform: uppercase; */
+    font-weight: 700;
+    box-shadow: 0px 10px 5px #00000020;
 
+}
+.victory_card__ok{
+    display: block;
+    font-size: 1.2rem;
+    background-color: unset;
+    border:unset;
+
+}
+
+@media screen and (max-width:900px) {
+    :root{
+        --cellSize:calc(100vw*.90/19);
+    }
+    .game_table{
+        padding: 0;
+    }
+    .player_board{
+        max-width:400px;
+        min-width:300px;
+        margin: 10px;
+    }
+}
+@media screen and (max-width:700px) {
+    .game_table{
+       flex-direction: column;
+    }
+    .player_board{
+        margin: 10px;
+        box-sizing:border-box;
+    }
+}

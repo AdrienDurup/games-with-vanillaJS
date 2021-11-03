@@ -86,3 +86,8 @@ margin: 16px;
 padding: 2rem;
 box-shadow: 10px 10px 10px #00000010;
 }
+.game_info{
+text-align: center;
+font-size:1rem;
+font-weight: 400;
+}
