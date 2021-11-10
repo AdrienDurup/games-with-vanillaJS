@@ -7,6 +7,6 @@
     "socket.io": "^4.2.0"
   },
   "scripts": {
-    "start":"node-dev srv.js"
+    "start":"node-dev app.js"
   }
 }

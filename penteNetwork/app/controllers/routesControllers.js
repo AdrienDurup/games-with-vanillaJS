@@ -1,9 +1,10 @@
-const xpr = require("express");
-const { Player, GameData, Session } = require("./model/model");
-const { GameLogic } = require("./model/gameLogic");
+// const xpr = require("express");
+const {xpr}= require("../../srv");
+const { Player, GameData, Session,GameLogic } = require("../model");
 
 let sessions = {};
-xpr.locals.sessions = sessions;
+console.log(xpr);
+// xpr.locals.sessions = sessions;
 
 
 /* view engine */
