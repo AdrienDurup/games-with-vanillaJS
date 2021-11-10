@@ -4,8 +4,6 @@ const { Player, GameData, Session,GameLogic } = require("../model");
 
 let sessions = {};
 console.log(xpr);
-// xpr.locals.sessions = sessions;
-
 
 /* view engine */
 const { ViewR } = require("../../my_modules/viewr");

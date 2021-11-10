@@ -1,5 +1,7 @@
 //const { io } = require("../../io");
-const { GameLogic,Session } = require("../model");
+const { GameLogic, Session } = require("../model");
+//const axios=require("axios");
+
 const socketControllers = {
     moveRequest: (io, e) => {
         // console.log("THIS",this);
@@ -34,9 +36,9 @@ const socketControllers = {
         io.to(sessionName).emit("changePlayerResponse", JSON.stringify({ gameState: game.state }));
     },
     initSession: (io, socket, e) => {
-    /* quand la page de jeu charge on initialise la session socket.io avec le nom de session
-    TO DO essayer de voir si on peut initialiser la room avant le chargement de la page, 
-    entièrement en BACK  */
+        /* quand la page de jeu charge on initialise la session socket.io avec le nom de session
+        TO DO essayer de voir si on peut initialiser la room avant le chargement de la page, 
+        entièrement en BACK  */
         // le nom de session est récupéré depuis <BODY>.id et stocké dans app.gameState
         // le nom de joueur est récupéré depuis <BODY>.id et sert à déterminer app.me
         const obj = JSON.parse(e);
@@ -46,8 +48,16 @@ const socketControllers = {
         const gameLogic = GameLogic.dict[sessionName];
         console.log(`initSession : ${sessionName}`);
         socket.join(sessionName);
-        /* on ajoute le socket au connection status à chaque refresh, chargement de partie */
-        Session.list[sessionName].connectionStatus.push(socket.id);
+        /*Si la session existe toujours, on ajoute le socket au connection status à chaque refresh, chargement de partie */
+        if (Session.list[sessionName])
+            Session.list[sessionName].connectionStatus.push(socket.id);
+        else {
+            const errorMsg=`La session ${sessionName} n’existe plus.`;
+            console.error("ioError : ", errorMsg );
+            // axios.get("/test");
+            socket.emit("ioError", JSON.stringify({msg:errorMsg}));
+            return;
+        };
         // console.log("currentSession",Session.list);
         /* Pour l’initialisation on envoie que vers le socket appelant */
         socket.emit("initRes", JSON.stringify({ sessionData: Session.list[sessionName], ip: socket.handshake.address, myName }));
@@ -57,7 +67,7 @@ const socketControllers = {
         //  io.to(sessionName).emit("initRes",JSON.stringify({sessionData:Session.list[sessionName],ip:socket.handshake.address,myName}));
         console.log(`${socket.id} joining game ${sessionName}...`);
     },
-    disconnect:()=>{
+    disconnect: (socket) => {
         const sessionNameList = Object.keys(Session.list);
         console.log(`sessions running : ${sessionNameList}`);
         for (key in Session.list) {
@@ -80,7 +90,7 @@ const socketControllers = {
                 };
             };
         };
-    console.log("User disconnected.");
+        console.log("User disconnected.");
     }
 }
 module.exports = { socketControllers };

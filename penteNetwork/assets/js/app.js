@@ -1,4 +1,5 @@
 const socket = io();
+const ErrorRedirection="/";
 /*
  TODO refactoriser en passant tout le game logic coté server : socket ne servira qu’à déclencher la récupération de data : vue des coups joués,
  TODO et autorisation à jouer pour le joueur actif. le gameState est stocké côté server une fois plutot qu’en double sur chaque client.
@@ -19,7 +20,13 @@ socket.on("initRes", (e) => {
         console.error(err);
     }
 
-})
+});
+socket.on("ioError",(e)=>{
+    const errorMsg=JSON.parse(e).error;
+    console.error(errorMsg);
+    // window.location=ErrorRedirection+encodeURI(`?error=${errorMsg}`);//ne fonctionne pas
+    window.location=ErrorRedirection;
+});
 socket.on("updatePlayerBoard", (e) => {
     try {
         app.session = JSON.parse(e).sessionData;
@@ -64,6 +71,8 @@ socket.on("moveResponse", (e) => {
 socket.on("changePlayerResponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
 });
+
+
 
 const app = {
     // socket: socket,
@@ -301,48 +310,5 @@ const app = {
         console.log(app.gameState.sessionName);
         socket.emit("initSession", JSON.stringify({ gameState: app.gameState, myName }));
     },
-    // popConnectionStatus:()=>{
-    //     console.log("popConnectionStatus ?");
-    //     socket.emit("popConnectionStatus",{sessionName:app.session.name});
-    // }
 }
 document.addEventListener("DOMContentLoaded", app.init);
-
-// document.addEventListener("visibilitychange", app.popConnectionStatus);
-/* Créer ici une requête html */
-                // const req = new XMLHttpRequest();
-
-/* On lui passe des données */
-                // req.submittedData=JSON.stringify({move:this.coordinate});
-
-/* on récupère le nom de session stocké dans l’id de body  */
-                // const session = document.querySelector("body").id;
-/* on poste la requête */
-                // const reqJSON = encodeURI(JSON.stringify({ move: this.coordinate }));
-                // console.log(`reqJSON : ${reqJSON}`);
-                // req.open("GET", `/penteonline/${session}/?json=${reqJSON}`, false);
-                // req.send();
-
-
-                // Player: class {
-                //     static list = [];
-                //     static dictionary = {};
-                //     name = "";
-                //     id = "";
-                //     ip = "";
-                //     index = -1;//sa place dans Player.list
-                //     pairs = 0;
-                //     move = [];//tuple
-                //     /*         score=0; */
-                //     color = "";
-                //     constructor(socketId, color) {
-                //         this.name = "";
-                //         this.id = socketId;
-                //         this.color = color;
-                //         app.Player.dictionary[this.id] = this;
-                //         // console.log(app.Player.dictionary);
-                //         this.index = app.Player.list.length;//attention à l’ordre des lignes.
-                //         app.Player.list.push(this);
-
-                //     }
-                // },
