@@ -1,6 +1,5 @@
 //const { io } = require("../../io");
 const { GameLogic, Session } = require("../model");
-//const axios=require("axios");
 
 const socketControllers = {
     moveRequest: (io, e) => {
@@ -48,16 +47,11 @@ const socketControllers = {
         const gameLogic = GameLogic.dict[sessionName];
         console.log(`initSession : ${sessionName}`);
         socket.join(sessionName);
+        
         /*Si la session existe toujours, on ajoute le socket au connection status à chaque refresh, chargement de partie */
         if (Session.list[sessionName])
             Session.list[sessionName].connectionStatus.push(socket.id);
-        else {
-            const errorMsg=`La session ${sessionName} n’existe plus.`;
-            console.error("ioError : ", errorMsg );
-            // axios.get("/test");
-            socket.emit("ioError", JSON.stringify({msg:errorMsg}));
-            return;
-        };
+
         // console.log("currentSession",Session.list);
         /* Pour l’initialisation on envoie que vers le socket appelant */
         socket.emit("initRes", JSON.stringify({ sessionData: Session.list[sessionName], ip: socket.handshake.address, myName }));

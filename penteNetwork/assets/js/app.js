@@ -1,5 +1,5 @@
 const socket = io();
-const ErrorRedirection="/";
+
 /*
  TODO refactoriser en passant tout le game logic coté server : socket ne servira qu’à déclencher la récupération de data : vue des coups joués,
  TODO et autorisation à jouer pour le joueur actif. le gameState est stocké côté server une fois plutot qu’en double sur chaque client.
@@ -20,12 +20,6 @@ socket.on("initRes", (e) => {
         console.error(err);
     }
 
-});
-socket.on("ioError",(e)=>{
-    const errorMsg=JSON.parse(e).error;
-    console.error(errorMsg);
-    // window.location=ErrorRedirection+encodeURI(`?error=${errorMsg}`);//ne fonctionne pas
-    window.location=ErrorRedirection;
 });
 socket.on("updatePlayerBoard", (e) => {
     try {

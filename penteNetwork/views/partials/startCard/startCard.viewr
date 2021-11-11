@@ -1,0 +1,7 @@
+<form class="form_startgame form_startgame__card" action="${action}" method="GET">
+<label for="game">${actionTitle}</label>
+<input type="text" name="game" required>
+<label for="user">${userName}</label>
+<input type="text" name="user" required>
+<button class="index_button">${button}</button>
+</form>
