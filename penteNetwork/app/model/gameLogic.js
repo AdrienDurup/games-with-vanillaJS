@@ -10,7 +10,8 @@ class GameLogic {
         lastMoveId: "",
         moveMap: [],
         toDelete: [],
-        victory: ""
+        victory: "",
+        askReset:false,
     };
     constructor(sessionName) {// TODO à dev
         /* forEach for of (?) passent par dessus les champs non initialisés 

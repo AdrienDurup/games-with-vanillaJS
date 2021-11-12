@@ -34,6 +34,24 @@ const socketControllers = {
         GameLogic.changePlayer(game);
         io.to(sessionName).emit("changePlayerResponse", JSON.stringify({ gameState: game.state }));
     },
+    askForReset: (io, e) => {
+        const sessionName = JSON.parse(e).sessionName;
+        const game = GameLogic.dict[sessionName];
+
+        const requyingPlayer = JSON.parse(e).playerName;
+        if (!game.askReset) { /* test if has already been asked */
+            /* crée un état d’attente */
+            game.askReset = requyingPlayer;
+            io.to(sessionName).broadcast.emit("askedForReset");
+        } else if (game.askReset !== requyingPlayer) { /* if asked by different player, transform into acceptance */
+            /* execute acceptNewGame() */
+            socketControllers.acceptNewGame(io, e);
+        };
+
+    },
+    acceptNewGame: (io, e) => {
+        console.log("acceptance not implemented");
+    },
     initSession: (io, socket, e) => {
         /* quand la page de jeu charge on initialise la session socket.io avec le nom de session
         TO DO essayer de voir si on peut initialiser la room avant le chargement de la page, 
@@ -47,7 +65,7 @@ const socketControllers = {
         const gameLogic = GameLogic.dict[sessionName];
         console.log(`initSession : ${sessionName}`);
         socket.join(sessionName);
-        
+
         /*Si la session existe toujours, on ajoute le socket au connection status à chaque refresh, chargement de partie */
         if (Session.list[sessionName])
             Session.list[sessionName].connectionStatus.push(socket.id);

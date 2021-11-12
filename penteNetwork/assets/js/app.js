@@ -51,7 +51,7 @@ socket.on("moveResponse", (e) => {
     app.PlayerBoard.updateAll(app.gameState);
 
     /* On affiche la victoire si OK */
-    console.log("victory Value",app.gameState.victory);
+    console.log("victory Value", app.gameState.victory);
     if (app.gameState.victory) {
         app.drawVictory(app.gameState.victory);
     };
@@ -66,7 +66,9 @@ socket.on("changePlayerResponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
 });
 
-
+socket.on("askedForRequest", () => {
+app.playAgainButt.textContent="Accepter la revanche";
+})
 
 const app = {
     // socket: socket,
@@ -76,7 +78,7 @@ const app = {
         author: "Gary Gabrel",
         size: 19,
     },
-
+    restartButton={},
     gameState: {//se récupère régulièrement depuis le serveur
         sessionName: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
@@ -87,7 +89,7 @@ const app = {
 
     drawVictory: (victoryVal) => {
         console.log("app.drawVictory running");
-        app.gameState.activePlayer={};
+        app.gameState.activePlayer = {};
         const table = document.getElementById("gameTable");
         const popup = document.createElement("div");
         popup.className = "victory_card";
@@ -98,6 +100,14 @@ const app = {
         closeButt.addEventListener("click", (e) => {
             table.removeChild(popup);
         });
+        const playAgainButt = document.createElement("button");
+        playAgainButt.textContent = "Proposer une revanche";
+        playAgainButt.className = "game_table__play_again_button";
+        playAgainButt.addEventListener("click", (e) => {
+            socket.emit("askForReset",{sessionName:app.sessionName});
+        });
+        app.restartButton=playAgainButt;
+        table.prepend(playAgainButt);
         popup.appendChild(closeButt);
         table.appendChild(popup);
     },
