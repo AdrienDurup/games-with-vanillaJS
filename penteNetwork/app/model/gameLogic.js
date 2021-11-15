@@ -1,7 +1,7 @@
 /* Game Logic */
 class GameLogic {
     static dict = {};
-    size = 19;
+    static size = 19;
     state = {
         sessionName: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
@@ -14,22 +14,29 @@ class GameLogic {
         askReset: false,
     };
     constructor(sessionName) {// TODO à dev
-        /* forEach for of (?) passent par dessus les champs non initialisés 
-        c’est pourquoi on utilise for loop */
-        this.state.moveMap = new Array(this.size);//des colonnes X
-        for (let i = 0; i < this.state.moveMap.length; i++) {
-            this.state.moveMap[i] = new Array(this.size).fill("");//des colonnes Y
-        };
+        this.state.moveMap = GameLogic.generateMap();
         GameLogic.dict[sessionName] = this;
     }
-     reset() {
-        this.moveMap = [];
-        this.toDelete = [];
-        this.victory = "";
-        this.lastMoveId = "";
-        console.log("reset game");
-        this.askReset = false;
+    reset() {
+        this.state.moveMap = GameLogic.generateMap();
+        this.state.toDelete = [];
+        this.state.victory = "";
+        this.state.lastMoveId = "";
+        this.state.askReset = false;
+        for (player of this.state.playerList) {
+            player.move = [];
+            player.pairs = 0;
+        };
         GameLogic.changePlayer(this);
+    }
+    static generateMap() {
+        /* forEach for of (?) passent par dessus les champs non initialisés 
+c’est pourquoi on utilise for loop */
+        const moveMap = new Array(this.size);//des colonnes X
+        for (let i = 0; i < moveMap.length; i++) {
+            moveMap[i] = new Array(this.size).fill("");//des colonnes Y
+        };
+        return moveMap;
     }
     static checkVictory = (state) => {//move is a tuple
         const axes = [

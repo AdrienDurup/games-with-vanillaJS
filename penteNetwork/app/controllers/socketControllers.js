@@ -22,7 +22,6 @@ const socketControllers = {
             console.log(`Victory for ${game.state.activePlayer.name}`);
         };
         //GameLogic.changePlayer(game);
-        game.state.victory = game.state.activePlayer.name;
         console.log("game.state.toDelete", game.state.toDelete);
         io.to(sessionName).emit("moveResponse", JSON.stringify({ gameState: game.state }));
     },
@@ -37,7 +36,8 @@ const socketControllers = {
     askForReset: (io, socket, e) => {
         const sessionName = JSON.parse(e).sessionName;
         const game = GameLogic.dict[sessionName];
-        console.log("sessionName", sessionName);
+        console.log("ask reset ==> ", game.state.askReset);
+
         const requyingPlayer = JSON.parse(e).playerName;
         if (!game.state.askReset) { /* test if has already been asked */
             /* crée un état d’attente */
@@ -54,7 +54,8 @@ const socketControllers = {
         const sessionName = JSON.parse(e).sessionName;
         const game = GameLogic.dict[sessionName];
         game.reset();
-        console.log(game.state);
+        console.log(game.state.askReset);
+        console.log( GameLogic.dict[sessionName].state.askReset);
         io.to(sessionName).emit("resetGame",JSON.stringify({gameState:game.state}));
     },
     initSession: (io, socket, e) => {
