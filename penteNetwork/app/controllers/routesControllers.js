@@ -38,9 +38,7 @@ module.exports = {
 
             /* on crée les données de session */
             const sessionName = req.query.game;
-            const owner = new Player(req.query.user, req.ip);
-            owner.label = "owner";
-            owner.color = "red";
+            const owner = new Player(req.query.user, req.ip,"owner");
             myGameLogic = new GameLogic(sessionName);
             myGameLogic.state.activePlayer = owner;
             sessions[sessionName] = new Session(sessionName, owner, myGameLogic);
@@ -76,8 +74,8 @@ module.exports = {
             /* Si l’invité n’est pas créé, on le crée */
             console.log("SESSION.GUEST", typeof session.guest);
             if (!session.guest) {
-                const guest = new Player(req.query.user, req.ip);
-                guest.color = "yellow";
+                const guest = new Player(req.query.user, req.ip,"guest");
+                console.log(session.owner.color);
                 session.addPlayer(guest, "guest");
                 console.log(session.guest, session.playerDict[guest.name]);
             };

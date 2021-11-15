@@ -22,7 +22,7 @@ const socketControllers = {
             console.log(`Victory for ${game.state.activePlayer.name}`);
         };
         //GameLogic.changePlayer(game);
-
+        game.state.victory = game.state.activePlayer.name;
         console.log("game.state.toDelete", game.state.toDelete);
         io.to(sessionName).emit("moveResponse", JSON.stringify({ gameState: game.state }));
     },
@@ -34,23 +34,28 @@ const socketControllers = {
         GameLogic.changePlayer(game);
         io.to(sessionName).emit("changePlayerResponse", JSON.stringify({ gameState: game.state }));
     },
-    askForReset: (io, e) => {
+    askForReset: (io, socket, e) => {
         const sessionName = JSON.parse(e).sessionName;
         const game = GameLogic.dict[sessionName];
-
+        console.log("sessionName", sessionName);
         const requyingPlayer = JSON.parse(e).playerName;
-        if (!game.askReset) { /* test if has already been asked */
+        if (!game.state.askReset) { /* test if has already been asked */
             /* crée un état d’attente */
-            game.askReset = requyingPlayer;
-            io.to(sessionName).broadcast.emit("askedForReset");
-        } else if (game.askReset !== requyingPlayer) { /* if asked by different player, transform into acceptance */
+            game.state.askReset = requyingPlayer;
+            socket.to(sessionName).emit("askedForReset_target");
+            socket.emit("askedForReset_sender");
+        } else if (game.state.askReset !== requyingPlayer) { /* if asked by different player, transform into acceptance */
             /* execute acceptNewGame() */
             socketControllers.acceptNewGame(io, e);
         };
 
     },
     acceptNewGame: (io, e) => {
-        console.log("acceptance not implemented");
+        const sessionName = JSON.parse(e).sessionName;
+        const game = GameLogic.dict[sessionName];
+        game.reset();
+        console.log(game.state);
+        io.to(sessionName).emit("resetGame",JSON.stringify({gameState:game.state}));
     },
     initSession: (io, socket, e) => {
         /* quand la page de jeu charge on initialise la session socket.io avec le nom de session

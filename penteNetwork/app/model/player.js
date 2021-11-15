@@ -8,10 +8,11 @@ class Player {
     label = "owner" || "guest" || "visitor";
     /*         score=0; */
     color = "";
-    constructor(name, ip, socketId = "", color = "") {
+    constructor(name, ip, label = "visitor", color = "") {//socketId = ""
         this.name = name;
-        this.id = socketId;
+       // this.id = socketId;
         this.ip = ip;
+        this.label = label;
         this.color = color;
     }
 }

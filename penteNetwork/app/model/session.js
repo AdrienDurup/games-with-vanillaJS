@@ -26,7 +26,7 @@ class Session {
         
     }
     addPlayer(player,label="owner"||"guest"||"visitor"){
-      
+
         if(label==="owner"||"guest"){
             console.log(label);
         this[label]=player;

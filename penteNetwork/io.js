@@ -11,8 +11,8 @@ io.on("connection", (socket) => {
 
     socket.on("moverequest",(e)=>{socketControllers.moveRequest(io,e)});
     socket.on("changePlayer", (e) => {socketControllers.changePlayer(io,e)});
-    socket.on("askForReset", (e) => {socketControllers.askForReset(io,e)});
-    socket.on("acceptNewGame", (e) => {socketControllers.askForReset(io,e)});
+    socket.on("askForReset", (e) => {socketControllers.askForReset(io,socket,e)});
+    socket.on("acceptNewGame", (e) => {socketControllers.acceptNewGame(io,e)});
     socket.on("initSession", (e) => {socketControllers.initSession(io,socket,e)});
     socket.on("disconnect", ()=>{socketControllers.disconnect(socket)});
 });

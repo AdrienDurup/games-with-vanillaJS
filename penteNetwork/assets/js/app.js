@@ -21,6 +21,10 @@ socket.on("initRes", (e) => {
     }
 
 });
+socket.on("resetGame", (e) => {
+    app.gameState = JSON.parse(e).gameState;
+    app.drawTable(document.getElementById("gameContainer"));
+})
 socket.on("updatePlayerBoard", (e) => {
     try {
         app.session = JSON.parse(e).sessionData;
@@ -66,9 +70,12 @@ socket.on("changePlayerResponse", (e) => {
     app.gameState = JSON.parse(e).gameState;
 });
 
-socket.on("askedForRequest", () => {
-app.playAgainButt.textContent="Accepter la revanche";
-})
+socket.on("askedForReset_target", () => {
+    app.restartButton.textContent = "Accepter la revanche";
+});
+socket.on("askedForReset_sender", () => {
+    app.restartButton.textContent = "Revanche proposée";
+});
 
 const app = {
     // socket: socket,
@@ -78,7 +85,7 @@ const app = {
         author: "Gary Gabrel",
         size: 19,
     },
-    restartButton={},
+    restartButton: {},
     gameState: {//se récupère régulièrement depuis le serveur
         sessionName: "",//récuperer la valeur via l’ID de Body ?
         playerList: [],
@@ -104,9 +111,9 @@ const app = {
         playAgainButt.textContent = "Proposer une revanche";
         playAgainButt.className = "game_table__play_again_button";
         playAgainButt.addEventListener("click", (e) => {
-            socket.emit("askForReset",{sessionName:app.sessionName});
+            socket.emit("askForReset", JSON.stringify({ sessionName: app.session.name, playerName: app.me.name }));
         });
-        app.restartButton=playAgainButt;
+        app.restartButton = playAgainButt;
         table.prepend(playAgainButt);
         popup.appendChild(closeButt);
         table.appendChild(popup);
@@ -297,6 +304,10 @@ const app = {
     },
     /* Pour créer la table dans la vue, qui contient des informations et le plateau */
     drawTable: (container) => {
+        const existingTable = document.getElementById("gameTable");
+        if (existingTable)
+            container.removeChild(existingTable);
+
         const table = document.createElement("div");
         table.id = "gameTable";
         table.className = "game_table";
@@ -307,6 +318,7 @@ const app = {
     },
     /* pour initialiser la partie */
     init: () => {
+        console.log("INIT");
         app.drawTable(document.getElementById("gameContainer"));
         const sessionInfo = document.getElementsByClassName("uniquePenteWrapper")[0].id.split("__");
         app.gameState.sessionName = sessionInfo[0];

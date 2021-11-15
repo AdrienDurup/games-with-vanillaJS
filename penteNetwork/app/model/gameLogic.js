@@ -11,7 +11,7 @@ class GameLogic {
         moveMap: [],
         toDelete: [],
         victory: "",
-        askReset:false,
+        askReset: false,
     };
     constructor(sessionName) {// TODO à dev
         /* forEach for of (?) passent par dessus les champs non initialisés 
@@ -21,6 +21,15 @@ class GameLogic {
             this.state.moveMap[i] = new Array(this.size).fill("");//des colonnes Y
         };
         GameLogic.dict[sessionName] = this;
+    }
+     reset() {
+        this.moveMap = [];
+        this.toDelete = [];
+        this.victory = "";
+        this.lastMoveId = "";
+        console.log("reset game");
+        this.askReset = false;
+        GameLogic.changePlayer(this);
     }
     static checkVictory = (state) => {//move is a tuple
         const axes = [
@@ -85,7 +94,7 @@ class GameLogic {
             };
 
         };
-        console.log(state.activePlayer.name,pairCheck);
+        console.log(state.activePlayer.name, pairCheck);
         if (isPairCheckValid === true
             && pairCheck[0].value !== state.activePlayer.name
             && pairCheck[0].value === pairCheck[1].value
@@ -96,8 +105,8 @@ class GameLogic {
             console.log(state.activePlayer.pairs);
             state.toDelete[0] = pairCheck[0].position;//première pierre à supprimer
             state.toDelete[1] = pairCheck[1].position;//seconde pierre à supprimer
-            state.moveMap[pairCheck[0].position[0]][pairCheck[0].position[1]]="";//on supprime dans moveMap
-            state.moveMap[pairCheck[1].position[0]][pairCheck[1].position[1]]="";//on supprime dans moveMap
+            state.moveMap[pairCheck[0].position[0]][pairCheck[0].position[1]] = "";//on supprime dans moveMap
+            state.moveMap[pairCheck[1].position[0]][pairCheck[1].position[1]] = "";//on supprime dans moveMap
             console.log("pierres à supprimer", state.toDelete);
         };
     }
