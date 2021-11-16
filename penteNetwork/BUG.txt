@@ -1,0 +1,81 @@
+her [
+  { position: [ 6, 1 ], value: '' },
+  { position: [ 7, 1 ], value: '' },
+  { position: [ 8, 1 ], value: '' }
+]
+her [
+  { position: [ 4, 1 ], value: '' },
+  { position: [ 3, 1 ], value: '' },
+  { position: [ 2, 1 ], value: '' }
+]
+score sur l’axe 0,1 : 1
+her [
+  { position: [ 5, 2 ], value: 'uewubew' },
+  { position: [ 5, 3 ], value: 'uewubew' },
+  { position: [ 5, 4 ], value: 'her' }
+]
+4
+pierres à supprimer [ [ 5, 2 ], [ 5, 3 ] ]
+her [ { position: [ 5, 0 ], value: '' } ]
+score sur l’axe 1,1 : 2
+her [
+  { position: [ 6, 2 ], value: 'her' },
+  { position: [ 7, 3 ], value: 'uewubew' },
+  { position: [ 8, 4 ], value: 'uewubew' }
+]
+her [ { position: [ 4, 0 ], value: '' } ]
+score sur l’axe -1,1 : 1
+her [
+  { position: [ 4, 2 ], value: '' },
+  { position: [ 3, 3 ], value: '' },
+  { position: [ 2, 4 ], value: '' }
+]
+her [ { position: [ 6, 0 ], value: '' } ]
+game.state.toDelete [ [ 5, 2 ], [ 5, 3 ] ]
+score sur l’axe 1,0 : 2
+uewubew [
+  { position: [ 9, 6 ], value: '' },
+  { position: [ 10, 6 ], value: '' },
+  { position: [ 11, 6 ], value: '' }
+]
+uewubew [
+  { position: [ 7, 6 ], value: 'uewubew' },
+  { position: [ 6, 6 ], value: 'her' },
+  { position: [ 5, 6 ], value: '' }
+]
+score sur l’axe 0,1 : 4
+uewubew [
+  { position: [ 8, 7 ], value: 'uewubew' },
+  { position: [ 8, 8 ], value: '' },
+  { position: [ 8, 9 ], value: '' }
+]
+uewubew [
+  { position: [ 8, 5 ], value: 'uewubew' },
+  { position: [ 8, 4 ], value: 'uewubew' },
+  { position: [ 8, 3 ], value: '' }
+]
+score sur l’axe 1,1 : 1
+uewubew [
+  { position: [ 9, 7 ], value: '' },
+  { position: [ 10, 8 ], value: '' },
+  { position: [ 11, 9 ], value: '' }
+]
+uewubew [
+  { position: [ 7, 5 ], value: 'her' },
+  { position: [ 6, 4 ], value: 'her' },
+  { position: [ 5, 3 ], value: 'uewubew' }
+]
+4
+pierres à supprimer [ [ 7, 5 ], [ 6, 4 ] ]
+score sur l’axe -1,1 : 2
+uewubew [
+  { position: [ 7, 7 ], value: 'her' },
+  { position: [ 6, 8 ], value: '' },
+  { position: [ 5, 9 ], value: '' }
+]
+uewubew [
+  { position: [ 9, 5 ], value: 'uewubew' },
+  { position: [ 10, 4 ], value: '' },
+  { position: [ 11, 3 ], value: '' }
+]
+game.state.toDelete [ [ 7, 5 ], [ 6, 4 ] ]

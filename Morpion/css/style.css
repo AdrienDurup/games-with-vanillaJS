@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,400;0,700;0,900;1,200;1,400;1,700;1,900&display=swap');
+:root{
+    --cell-size:3rem;
+    --board-size:calc(var(--cell-size)*3 + 3rem);
+    --j1:rgb(255, 217, 0);
+    --j2:red;
+    --activePlayer:var(--j1);
+    font-family: "Raleway",sans-serif;
+
+}
+body{
+    margin:0;
+}
+.game-main{
+    margin:3rem auto;
+
+}
+.game-title{
+    text-align: center;
+    border-bottom:solid 2px cornflowerblue;
+    padding: 1rem;
+    font-weight: 400;
+}
+.player-name{
+    font-weight: bold;
+    font-size: 0.8rem;
+    text-align: center;
+    color: var(--activePlayer);
+}
+
+.board__cell{
+    display: flex;
+    background-color: whitesmoke;
+    margin:.5rem;
+    align-items: center;
+    justify-content: center;
+    /* flex-basis: var(--cell-size); */
+    /* width: var(--cell-size);
+    height:var(--cell-size); */
+    height:25%;
+    width: 25%;
+    box-shadow: 10px 10px 10px #00000033;
+    border: none;
+    }
+    .board__cell:hover{
+        background-color:var(--activePlayer);
+    
+    }
+    .board__cell:active{
+        background-color:black;
+        /* border-radius: 100%; */
+    }
+.board{
+    display: flex;
+    margin:auto;
+    align-content: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* border: solid 1px gray; */
+    box-sizing: content-box;
+    width:var(--board-size);
+    height:var(--board-size) ;
+}
+.game-footer{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 3rem;
+    background-color: black;
+    color: white;
+    width: 100%;
+    height : 3rem;
+
+}

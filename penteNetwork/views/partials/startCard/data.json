@@ -1,0 +1,15 @@
+[{
+    "actionTitle": "Nouvelle Partie",
+    "userName": "Pseudo",
+    "button": "Créer",
+    "action": "/create"
+},
+{
+
+    "actionTitle": "Rejoindre une partie",
+    "userName": "Pseudo",
+    "button": "Rejoindre",
+    "action": "/join"
+
+}
+]

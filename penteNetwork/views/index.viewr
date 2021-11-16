@@ -1,0 +1,7 @@
+${wrapperSnippet("views/partials/pagebase")}
+<main class="main_gamelaunch">
+${togglable("views/partials/errorBox",error,isDisplayed)}
+<div class="main__formwrapper">
+${component("views/partials/startCard")}
+<div>
+</main>

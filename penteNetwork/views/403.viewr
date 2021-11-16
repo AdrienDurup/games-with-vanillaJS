@@ -1,0 +1,6 @@
+${wrapperSnippet("views/partials/pagebase")}
+<main class="main_gamelaunch">
+<div class="main__formwrapper">
+<div class="error">Cette session n’existe pas ou vous n’êtes pas autorisé à la rejoindre.</div>
+<div>
+</main>
