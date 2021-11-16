@@ -23,7 +23,7 @@ class GameLogic {
         this.state.victory = "";
         this.state.lastMoveId = "";
         this.state.askReset = false;
-        for (player of this.state.playerList) {
+        for (const player of this.state.playerList) {
             player.move = [];
             player.pairs = 0;
         };

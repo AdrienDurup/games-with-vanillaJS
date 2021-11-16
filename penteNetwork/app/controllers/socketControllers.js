@@ -17,6 +17,12 @@ const socketControllers = {
         game.state.moveMap[lastMove[0]][lastMove[1]] = state.activePlayer.name;
         // console.log(game.state.activePlayer.move);
         // console.log(game.state);
+        
+        /* POUR TESTS, VICTOIRES AUTO */
+        /* gameustate.victory=game.state.activePlayer.name; */
+        /* game.state.activePlayer.pairs=5; */
+        /* FIN TEST */
+        
         GameLogic.checkVictory(game.state);
         if (game.state.victory !== "") {
             console.log(`Victory for ${game.state.activePlayer.name}`);
